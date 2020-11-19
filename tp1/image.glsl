@@ -24,7 +24,7 @@ const float K=7.0;
 
 // Terrain heightfield
 // x : Position in the plane
-float Terrain( in vec2 x )
+vec2 Terrain( in vec2 x )
 {
 	// Rotation matrix
 	const mat2 m2 = mat2(0.8,-0.6,0.6,0.8);
@@ -52,27 +52,46 @@ float Terrain( in vec2 x )
 		b *= 0.5;
         p = m2*p*2.0;
     }
-	return -400.0+a0*a;
+	return vec2(-400.0+a0*a, 1.0);
 }
 
-vec2 cercle(in vec2 x, in vec3 centre)
+vec2 disque(in vec2 x, in vec3 centre, in float radius)
 {   
     vec2 dir = x - centre.xy;
     float alpha = dir.x*dir.x + dir.y*dir.y;
-    // g(x)
-    alpha = (1 - (alpha / r*r));
-    alpha = alpha * alpha * alpha;
+    if (alpha < radius)
+    {
+        // g(x)
+        alpha = (1.0 - (alpha / (radius*radius)));
+        alpha = alpha * alpha * alpha;
+    }
+    else
+        alpha = 0.;
 
     float height = centre.z;
     return vec2(height, alpha);
 }
 
+vec2 blend(in vec2 a, in vec2 b)
+{
+    float new_alpha = (a.y + b.y);
+    float new_height = (a.x*a.y + b.x*b.y) / new_alpha;
+    return vec2(new_height, new_alpha);
+}
+
+vec2 comp_height(in vec3 p, in vec2 output_func_height)
+{
+    return vec2(p.z - output_func_height.x, output_func_height.y);
+}   
+
 // Implicit surface defining the terrain
 // p : Point
 float Implicit(in vec3 p)
 {
-	float h = p.z - Terrain( p.xy );
-    return h;
+	// float h = p.z - Terrain( p.xy );
+    vec2 h = comp_height(p, Terrain( p.xy ));
+    h = blend(h, comp_height(p, disque(p.xy, vec3(1., 1., 500.), 100.)));
+    return h.x;
 }
 
 // Sphere tracing
