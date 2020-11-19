@@ -61,3 +61,15 @@ float Noise(in vec2 p)
                    mix( Hash(i+vec2(0,1)), 
                         Hash(i+vec2(1,1)),f.x),f.y);
 }
+
+float RidgeNoise(in vec3 p)
+{
+	float n = Noise(p);
+    return 1.f - 2.f * abs(Noise(p));
+}
+
+float RidgeNoise(in vec2 p)
+{
+	float n = Noise(p);
+    return 1.f - 2.f * abs(Noise(p));
+}

@@ -58,11 +58,12 @@ vec2 Terrain( in vec2 x )
 vec2 disque(in vec2 x, in vec3 centre, in float radius)
 {   
     vec2 dir = x - centre.xy;
-    float alpha = dir.x*dir.x + dir.y*dir.y;
-    if (alpha < radius)
+    float alpha = dir.x * dir.x + dir.y * dir.y;
+    float radius2 = radius * radius;
+    if (alpha < radius2)
     {
         // g(x)
-        alpha = (1.0 - (alpha / (radius*radius)));
+        alpha = (1.0 - (alpha / radius2));
         alpha = alpha * alpha * alpha;
     }
     else
@@ -82,15 +83,41 @@ vec2 blend(in vec2 a, in vec2 b)
 vec2 comp_height(in vec3 p, in vec2 output_func_height)
 {
     return vec2(p.z - output_func_height.x, output_func_height.y);
+}
+
+// Pour utiliser des surfaces implicites
+float Union(in float a, in float b)
+{
+    return min(a, b);
+}
+
+float Inter(in float a, in float b)
+{
+    return max(a, b);
+}
+
+float Diff(in float a, in float b)
+{
+	return max(a, -b);
+}
+
+float BlendImplicite(in float a, in float b, in float k)
+{
+    float h = max(k - abs(a - b), 0.f) / k;
+    return min(a, b) - h * h * h * k * (1.f / 6.f);
 }   
 
 // Implicit surface defining the terrain
 // p : Point
 float Implicit(in vec3 p)
 {
-	// float h = p.z - Terrain( p.xy );
     vec2 h = comp_height(p, Terrain( p.xy ));
-    h = blend(h, comp_height(p, disque(p.xy, vec3(1., 1., 500.), 100.)));
+    h = blend(h, comp_height(p, disque(p.xy, vec3(1.f, 1.f, 800.f), 800.f)));
+
+    // Surface implicite
+    float boule = length(p - vec3(0.f, 0.f, 800.f + 200.f * (cos(iTime) + 1.f))) - 200.f;
+    h.x = BlendImplicite(h.x, boule, 100.f);
+
     return h.x;
 }
 
