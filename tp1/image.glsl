@@ -211,7 +211,6 @@ vec4 Render( in vec3 ro, in vec3 rd, bool pip )
     }
 	else
 	{
-        vec2 sud = vec2(1., 0.);
 
         // mountains		
 		vec3 p = ro + t*rd;
@@ -222,15 +221,16 @@ vec4 Render( in vec3 ro, in vec3 rd, bool pip )
         vec3 hal = normalize(light1-rd);
 
         float ok_slope = 0.5;
-        float neige_orientation = dot(n.xy, sud) + 0.25;
-        float ok_hauteur_snow = 625.0+((neige_orientation* 20.0 + 10.0)*Noise(p.xy));
+        vec2 sud = vec2(1., 0.);
+        float neige_orientation = dot(n.xy, sud) + clamp(-0.5, 0.5, Noise(p.xy));
+        float ok_hauteur_snow = 625.0+(Noise(p.xy));
         float ok_hauteur_grass = 500.0;
         float slope = sqrt(n.x*n.x + n.y*n.y) / n.z ;
 
         col = vec3(0.2);
 
         if ((slope < ok_slope) && dot(n, vec3(0.0, 0.0, 1.0)) > 0.0)
-            if (p.z >  ok_hauteur_snow) // snow
+            if (p.z >  ok_hauteur_snow && neige_orientation > 0.) // snow
                 col = vec3(1.0);
             else if (p.z < ok_hauteur_grass)
                 col = vec3(0., 0.5, 0.);
