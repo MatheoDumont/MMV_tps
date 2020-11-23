@@ -196,13 +196,13 @@ vec4 Render( in vec3 ro, in vec3 rd, bool pip )
         float ok_hauteur_grass = 500.0;
         float slope = sqrt(n.x*n.x + n.y*n.y) / n.z ;
 
-        if ((slope < ok_slope))
-            if (p.z >  ok_hauteur_snow ) // snow
+        col = vec3(0.2);
+
+        if ((slope < ok_slope) && dot(n, vec3(0.0, 0.0, 1.0)) > 0.0)
+            if (p.z >  ok_hauteur_snow) // snow
                 col = vec3(1.0);
             else if (p.z < ok_hauteur_grass)
                 col = vec3(0., 0.5, 0.);
-        else
-                col = vec3(0.2);
         
          // Pseudo diffuse lighting
 		float dif = 0.5*(1.0+dot( light1, n ));
