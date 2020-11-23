@@ -135,7 +135,12 @@ float Implicit(in vec3 p)
     h = blend(h, comp_height(p, disque(p.xy, vec3(1.f, 1.f, 600.f), 400.f)));
 
     // Surface implicite
-    float boule = length(p - vec3(0.f, 0.f, 800.f /*+ 200.f  (cos(iTime) + 1.f*/)) - 200.f;
+    float boule = length(
+        p - vec3(
+            0.f, 
+            0.f, 
+            600.f + 200.f * (cos(iTime) + 1.f))) - 200.f;
+            
     h.x = BlendImplicite(h.x, boule, 100.f);
     h.x = Diff(h.x, boule);
 
@@ -206,6 +211,8 @@ vec4 Render( in vec3 ro, in vec3 rd, bool pip )
     }
 	else
 	{
+        vec2 sud = vec2(1., 0.);
+
         // mountains		
 		vec3 p = ro + t*rd;
         vec3 n = Normal( p );
@@ -214,8 +221,9 @@ vec4 Render( in vec3 ro, in vec3 rd, bool pip )
         float fre = clamp( 1.0+dot(rd,n), 0.0, 1.0 );
         vec3 hal = normalize(light1-rd);
 
-        float ok_slope = 0.6;
-        float ok_hauteur_snow = 600.0+(10.0*Noise(p.xy));
+        float ok_slope = 0.5;
+        float neige_orientation = dot(n.xy, sud) + 0.25;
+        float ok_hauteur_snow = 625.0+((neige_orientation* 20.0 + 10.0)*Noise(p.xy));
         float ok_hauteur_grass = 500.0;
         float slope = sqrt(n.x*n.x + n.y*n.y) / n.z ;
 
