@@ -80,6 +80,12 @@ vec2 blend(in vec2 a, in vec2 b)
     return vec2(new_height, new_alpha);
 }
 
+vec2 replace(in vec2 a, in vec2 b)
+{
+    float h = (1. - b.y) * a.x + b.x*b.y;
+    return vec2(h, a.y);
+}
+
 vec2 comp_height(in vec3 p, in vec2 output_func_height)
 {
     return vec2(p.z - output_func_height.x, output_func_height.y);
@@ -107,16 +113,33 @@ float BlendImplicite(in float a, in float b, in float k)
     return min(a, b) - h * h * h * k * (1.f / 6.f);
 }   
 
+/*
+ * alpha coef multiplicateur
+ * p les coordonnees du point regarde
+ * a le vec2 (height, alpha) de p
+ * return un vec2 avec une nouvelle hauteur etant a.x scale a l'inverse de la distance * alpha. et l'alpha de a (a.y).
+ */
+vec2 AlphaBlending(in vec2 centre, in float height, in vec3 p, in vec2 a)
+{
+    float distance = length(p.xy - centre);
+    vec2 r = blend(vec2(height+a.x, distance), a);
+    r.x += a.x;
+    return r;   
+}
+
 // Implicit surface defining the terrain
 // p : Point
 float Implicit(in vec3 p)
 {
     vec2 h = comp_height(p, Terrain( p.xy ));
-    h = blend(h, comp_height(p, disque(p.xy, vec3(1.f, 1.f, 800.f), 800.f)));
+    h = blend(h, comp_height(p, disque(p.xy, vec3(1.f, 1.f, 600.f), 400.f)));
 
     // Surface implicite
-    float boule = length(p - vec3(0.f, 0.f, 800.f + 200.f * (cos(iTime) + 1.f))) - 200.f;
+    float boule = length(p - vec3(0.f, 0.f, 800.f /*+ 200.f  (cos(iTime) + 1.f*/)) - 200.f;
     h.x = BlendImplicite(h.x, boule, 100.f);
+    h.x = Diff(h.x, boule);
+
+    // h = AlphaBlending(vec2(0.,0.), 100., p, h);
 
     return h.x;
 }
