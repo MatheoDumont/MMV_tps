@@ -111,7 +111,7 @@ float BlendImplicite(in float a, in float b, in float k)
 {
     float h = max(k - abs(a - b), 0.f) / k;
     return min(a, b) - h * h * h * k * (1.f / 6.f);
-}   
+}
 
 /*
  * alpha coef multiplicateur
@@ -127,20 +127,52 @@ vec2 AlphaBlending(in vec2 centre, in float height, in vec3 p, in vec2 a)
     return r;   
 }
 
+float Sphere(in vec3 p, in vec3 center, in float radius, in float noise)
+{
+    return length(p - center) - radius + noise;
+}
+
+float Segment(in vec3 p, in vec3 a, in vec3 b, in float radius, in float noise)
+{
+    float d;
+    
+    vec3 ab = (b - a);
+    float d_ab = length(ab);
+    
+    vec3 ap = (p - a);
+    vec3 bp = (p - b);
+    
+    vec3 u = (b - a) / length(b - a);
+    float ah = dot((p - a), u);
+    
+    if (ah < 0.f)
+        d = length2(ap);
+    else if (ah > d_ab)
+        d = length2(bp);
+    else
+        d = length2(ap) - pow(ah, 2.f);
+        
+    d = sqrt(d);
+    
+	return d - radius + noise;
+}
+
 // Implicit surface defining the terrain
 // p : Point
 float Implicit(in vec3 p)
 {
-    vec2 terr = Terrain( p.xy );
-    vec2 h = comp_height(p, terr);
-    h = blend(h, comp_height(p, disque(p.xy, vec3(1.f, 1.f, 0.f), 800.f)));
+    vec2 h = comp_height(p, Terrain( p.xy ));
+    h = blend(h, comp_height(p, disque(p.xy, vec3(1.f, 1.f, -100.f), 800.f)));
 
-    // Surface implicite
+    /// Surface implicite
     float radius = 300.f;
-    float boule = length(p - vec3(1.f, 1.f, 400.f)) - radius + terr.x;
+    float boule = Sphere(p, vec3(1.f, 1.f, 500.f), radius, 0.0);
+    float segment = Segment(p, vec3(0.0, 300.0, 420.0), vec3(0.0, 1400.0, 420.0), 100.0, 50.0 * Noise(p / 50.0) + 16.0 * Noise(p / 16.0));
             
-    // h.x = BlendImplicite(h.x, boule, 100.f);
-    h.x = Diff(h.x, boule);
+    //h.x = BlendImplicite(h.x, boule, 100.f);
+    //h.x = Diff(h.x, boule);
+    //h.x = Union(h.x, segment);
+    h.x = Diff(h.x, segment);
 
     return h.x * h.y;
 }
@@ -273,7 +305,7 @@ vec4 Render( in vec3 ro, in vec3 rd, bool pip )
 mat3 moveCamera(float time, out vec3 ro)
 {
 	// Origin
-    ro =  vec3(2000.0*cos(iMouse.x*0.01),2000.0*sin(iMouse.x*0.01),1000.0) ;
+    ro =  vec3(2000.0*cos(iMouse.x*0.01),2000.0*sin(iMouse.x*0.01),1500.0) ;
 	
     // Target
     vec3 ta = vec3(0.0,0.0,500.0);

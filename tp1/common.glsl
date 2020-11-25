@@ -73,3 +73,9 @@ float RidgeNoise(in vec2 p)
 	float n = Noise(p);
     return 1.f - 2.f * abs(Noise(p));
 }
+
+// Utility functions --------------------------------------------
+float length2(in vec3 p)
+{
+    return pow(p.x, 2.0) + pow(p.y, 2.0) + pow(p.z, 2.0);
+}
