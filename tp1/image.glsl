@@ -132,21 +132,16 @@ vec2 AlphaBlending(in vec2 centre, in float height, in vec3 p, in vec2 a)
 float Implicit(in vec3 p)
 {
     vec2 h = comp_height(p, Terrain( p.xy ));
-    h = blend(h, comp_height(p, disque(p.xy, vec3(1.f, 1.f, 600.f), 400.f)));
+    h = blend(h, comp_height(p, disque(p.xy, vec3(1.f, 1.f, 0.f), 800.f)));
 
     // Surface implicite
-    float boule = length(
-        p - vec3(
-            0.f, 
-            0.f, 
-            600.f + 200.f * (cos(iTime) + 1.f))) - 200.f;
+    float radius = 300.f;
+    float boule = length(p - vec3(1.f, 1.f, 400.f)) - radius + Terrain(p.xy).x;
             
-    h.x = BlendImplicite(h.x, boule, 100.f);
+    // h.x = BlendImplicite(h.x, boule, 100.f);
     h.x = Diff(h.x, boule);
 
-    // h = AlphaBlending(vec2(0.,0.), 100., p, h);
-
-    return h.x;
+    return h.x * h.y;
 }
 
 // Sphere tracing
@@ -225,6 +220,7 @@ vec4 Render( in vec3 ro, in vec3 rd, bool pip )
         float neige_orientation = dot(n.xy, sud) + clamp(-0.5, 0.5, Noise(p.xy));
         float ok_hauteur_snow = 625.0+(Noise(p.xy));
         float ok_hauteur_grass = 500.0;
+        float ok_eau = 450.0;
         float slope = sqrt(n.x*n.x + n.y*n.y) / n.z ;
 
         col = vec3(0.2);
@@ -234,12 +230,24 @@ vec4 Render( in vec3 ro, in vec3 rd, bool pip )
                 col = vec3(1.0);
             else if (p.z < ok_hauteur_grass)
                 col = vec3(0., 0.5, 0.);
-        
-         // Pseudo diffuse lighting
-		float dif = 0.5*(1.0+dot( light1, n ));
-        dif*=dif;
-        
-        col += dif*vec3(0.35);
+
+        if (p.z < ok_eau)
+        {
+            col = vec3(0.,0.,0.6);
+
+             // Pseudo diffuse lighting
+            float dif = 0.5*(1.0+dot( light1, n ));
+            dif*=dif;
+            col += dif*vec3(0.35);
+        }
+        else
+        {
+             // Pseudo diffuse lighting
+            float dif = 0.5*(1.0+dot( light1, n ));
+            dif*=dif;
+            
+            col += dif*vec3(0.35);
+        }
 
 		// fog
         // float fo = 1.0-exp(-pow(0.0005*t,1.5) );
