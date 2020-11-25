@@ -131,12 +131,13 @@ vec2 AlphaBlending(in vec2 centre, in float height, in vec3 p, in vec2 a)
 // p : Point
 float Implicit(in vec3 p)
 {
-    vec2 h = comp_height(p, Terrain( p.xy ));
+    vec2 terr = Terrain( p.xy );
+    vec2 h = comp_height(p, terr);
     h = blend(h, comp_height(p, disque(p.xy, vec3(1.f, 1.f, 0.f), 800.f)));
 
     // Surface implicite
     float radius = 300.f;
-    float boule = length(p - vec3(1.f, 1.f, 400.f)) - radius + Terrain(p.xy).x;
+    float boule = length(p - vec3(1.f, 1.f, 400.f)) - radius + terr.x;
             
     // h.x = BlendImplicite(h.x, boule, 100.f);
     h.x = Diff(h.x, boule);
