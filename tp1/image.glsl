@@ -113,23 +113,15 @@ float BlendImplicite(in float a, in float b, in float k)
     return min(a, b) - h * h * h * k * (1.f / 6.f);
 }
 
-/*
- * alpha coef multiplicateur
- * p les coordonnees du point regarde
- * a le vec2 (height, alpha) de p
- * return un vec2 avec une nouvelle hauteur etant a.x scale a l'inverse de la distance * alpha. et l'alpha de a (a.y).
- */
-vec2 AlphaBlending(in vec2 centre, in float height, in vec3 p, in vec2 a)
-{
-    float distance = length(p.xy - centre);
-    vec2 r = blend(vec2(height+a.x, distance), a);
-    r.x += a.x;
-    return r;   
-}
-
 float Sphere(in vec3 p, in vec3 center, in float radius, in float noise)
 {
     return length(p - center) - radius + noise;
+}
+
+
+vec2 carre(vec3 p, vec3 centre, in float radius)
+{
+    return vec2(length(max(abs(p) - centre, 0.0)) - radius, 1.0);
 }
 
 float Segment(in vec3 p, in vec3 a, in vec3 b, in float radius, in float noise)
@@ -160,19 +152,32 @@ float Segment(in vec3 p, in vec3 a, in vec3 b, in float radius, in float noise)
 // Implicit surface defining the terrain
 // p : Point
 float Implicit(in vec3 p)
-{
+{   
+    // Terrain de base
     vec2 h = comp_height(p, Terrain( p.xy ));
+
+    // Creusement pour le lac
     h = blend(h, comp_height(p, disque(p.xy, vec3(1.f, 1.f, -100.f), 800.f)));
 
-    /// Surface implicite
-    float radius = 300.f;
-    float boule = Sphere(p, vec3(1.f, 1.f, 500.f), radius, 0.0);
-    float segment = Segment(p, vec3(0.0, 300.0, 420.0), vec3(0.0, 1400.0, 420.0), 100.0, 50.0 * Noise(p / 50.0) + 16.0 * Noise(p / 16.0));
-            
-    //h.x = BlendImplicite(h.x, boule, 100.f);
-    //h.x = Diff(h.x, boule);
-    //h.x = Union(h.x, segment);
+    // Tunnel
+    float noise_tunnel = 50.0 * Noise(p / 50.0) + 20.0 * Noise(p / 20.0);
+    float segment = Segment(p, vec3(0.0, 300.0, 420.0), vec3(0.0, 1400.0, 420.0), 100.0, noise_tunnel);
     h.x = Diff(h.x, segment);
+
+    // Surplomb
+    float radius = 215.f;
+    float noise = 50.* Noise(p / 50.) + 10. * Noise(p / 10.);
+    float boule = Sphere(p, vec3(125.f, -420.f, 580.f),radius, noise);
+    float boule2 = Sphere(p, vec3(-25.f, -420.f, 580.f),radius, noise);
+    float boule3 = Sphere(p, vec3(-120.f, -420.f, 580.f),radius+50., noise);
+
+    vec2 b = blend(vec2(boule, 1.0), vec2(boule2, 1.0));
+    b = blend(b, vec2(boule3, 1.0));
+    h.x = Diff(h.x, b.x);
+
+    // float noise_bouboule = (1.0 - abs(0.5 - Noise(p.xy / 10.)));
+    // float boule4 = Sphere(p, vec3(125.f, -500.f, 650.f),30., noise_bouboule);
+    // h.x = BlendImplicite(h.x, boule4, 1.);
 
     return h.x * h.y;
 }
