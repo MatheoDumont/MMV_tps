@@ -55,6 +55,11 @@ vec2 Terrain( in vec2 x )
 	return vec2(-400.0+a0*a, 1.0);
 }
 
+vec2 Eau(in vec2 x)
+{
+    return vec2(425.0 + 5.0 * sin(x.x / 20.0), 1.0);
+}
+
 vec2 disque(in vec2 x, in vec3 centre, in float radius)
 {   
     vec2 dir = x - centre.xy;
@@ -107,6 +112,13 @@ float Diff(in float a, in float b)
 	return max(a, -b);
 }
 
+/**
+ * Permet de blend des surfaces implicites.
+ * 
+ * Le coefficient k permet de dire à quel point on veut une jointure lisse
+ * ex: - k = 1.0, équivalent à l'Union
+ *     - k = 100.0, jointure relativement lisse
+ */
 float BlendImplicite(in float a, in float b, in float k)
 {
     float h = max(k - abs(a - b), 0.f) / k;
@@ -164,22 +176,44 @@ float Implicit(in vec3 p)
     float segment = Segment(p, vec3(0.0, 300.0, 420.0), vec3(0.0, 1400.0, 420.0), 100.0, noise_tunnel);
     h.x = Diff(h.x, segment);
 
+    // Avancement de la montagne
+    float b, radius, noise, boule;
+
+    radius = 150.0;
+    noise = 50.* Noise(p / 50.) + 10. * Noise(p / 10.) + 20.0 * Noise(p / 20.0);
+
+    segment = Segment(p, vec3(-25.0, -420.0, 580.0), vec3(125.0, -420.0, 580.0), radius, noise);
+    boule = Sphere(p, vec3(60.0, -420, 710.0), 50.0, 10.0 * Noise(p / 10.0));
+
+    b = BlendImplicite(boule, segment, 100.0);
+    h.x = BlendImplicite(h.x, b, 500.0);
+
     // Surplomb
-    float radius = 215.f;
-    float noise = 50.* Noise(p / 50.) + 10. * Noise(p / 10.);
-    float boule = Sphere(p, vec3(125.f, -420.f, 580.f),radius, noise);
-    float boule2 = Sphere(p, vec3(-25.f, -420.f, 580.f),radius, noise);
-    float boule3 = Sphere(p, vec3(-120.f, -420.f, 580.f),radius+50., noise);
+    radius = 100.f;
+    noise = 50.* Noise(p / 50.) + 10. * Noise(p / 10.);
 
-    vec2 b = blend(vec2(boule, 1.0), vec2(boule2, 1.0));
-    b = blend(b, vec2(boule3, 1.0));
-    h.x = Diff(h.x, b.x);
+    // Zone supprimée de la montagne
+    b = Segment(p, vec3(125.f, -270.f, 455.f), vec3(-10.f, -250.f, 455.f), radius, noise);
+    segment = Segment(p, vec3(200.f, -220.f, 455.f), vec3(-10.f, -200.f, 455.f), radius + 10.0, noise);
+    boule = Sphere(p, vec3(0.f, -200.f, 455.f), 20.0, 1.0);
 
-    // float noise_bouboule = (1.0 - abs(0.5 - Noise(p.xy / 10.)));
-    // float boule4 = Sphere(p, vec3(125.f, -500.f, 650.f),30., noise_bouboule);
-    // h.x = BlendImplicite(h.x, boule4, 1.);
+    b = BlendImplicite(b, segment, 100.0);
+    b = BlendImplicite(b, boule, 100.0);
+    
+    h.x = Diff(h.x, b);
+
+    // Correction de la suppression trop forte dans l'eau du lac
+    radius = 50.0;
+    b = Segment(p, vec3(200.f, -150.f, 315.f), vec3(-10.f, -170.f, 350.f), radius, 1.0);
+    h.x = BlendImplicite(h.x, b, 100.0);
 
     return h.x * h.y;
+}
+
+float EauImplicit(in vec3 p)
+{
+    vec2 w = comp_height(p, Eau(p.xy));
+    return w.x * w.y;
 }
 
 // Sphere tracing
@@ -193,6 +227,27 @@ bool Intersect(in vec3 ro, in vec3 rd, out float t,out int i)
 	{
         vec3 p = ro + t*rd;
 		float h = Implicit(p);
+        // 1 cm precision at 1 meter range, reduce precision as we move forward
+		if ( abs(h)<(Epsilon*t)  ) return true;
+        if ( t>view )  return false; 
+		// Empirical Lipschitz constant with level of detail (the further, the larger steps)
+        t += max(Epsilon,h*sqrt(1.0+8.0*t/view)/K);
+	}
+
+	return false;
+}
+
+// Sphere tracing
+// ro, rd : Ray origin and direction
+// t : Intersection depth
+// i : Iteration count
+bool EauIntersect(in vec3 ro, in vec3 rd, out float t,out int i)
+{
+    t = 0.0;
+	for( i=0; i<Steps; i++ )
+	{
+        vec3 p = ro + t*rd;
+		float h = EauImplicit(p);
         // 1 cm precision at 1 meter range, reduce precision as we move forward
 		if ( abs(h)<(Epsilon*t)  ) return true;
         if ( t>view )  return false; 
@@ -218,6 +273,17 @@ vec3 Normal(in vec3 p )
   return normalize(n);
 }
 
+vec3 EauNormal(in vec3 p )
+{
+  float eps = 0.01;
+  vec3 n;
+  float v = EauImplicit(p);
+  n.x = Implicit( vec3(p.x+eps, p.y, p.z) ) - v;
+  n.y = Implicit( vec3(p.x, p.y+eps, p.z) ) - v;
+  n.z = Implicit( vec3(p.x, p.y, p.z+eps) ) - v;
+  return normalize(n);
+}
+
 // Shading with number of steps
 vec3 ShadeSteps(int n)
 {
@@ -237,55 +303,65 @@ vec4 Render( in vec3 ro, in vec3 rd, bool pip )
     float t;
     int it;
     bool b=Intersect( ro, rd, t , it);
-    if( b==false)
+
+    float tw;
+    int itw;
+    bool bw = EauIntersect( ro, rd, tw , itw);
+
+    if( b==false && bw == false)
     {
         // sky		
         col = vec3(0.35,0.65,0.95) - rd.z*rd.z*2.5;
     }
 	else
 	{
+        vec3 n;
+        vec3 p = ro + t*rd;
 
-        // mountains		
-		vec3 p = ro + t*rd;
-        vec3 n = Normal( p );
-
-        vec3 ref = reflect( rd, n );
-        float fre = clamp( 1.0+dot(rd,n), 0.0, 1.0 );
-        vec3 hal = normalize(light1-rd);
-
-        float ok_slope = 0.5;
-        vec2 sud = vec2(1., 0.);
-        float neige_orientation = dot(n.xy, sud) + clamp(-0.5, 0.5, Noise(p.xy));
-        float ok_hauteur_snow = 625.0+(Noise(p.xy));
-        float ok_hauteur_grass = 500.0;
-        float ok_eau = 450.0;
-        float slope = sqrt(n.x*n.x + n.y*n.y) / n.z ;
-
-        col = vec3(0.2);
-
-        if ((slope < ok_slope) && dot(n, vec3(0.0, 0.0, 1.0)) > 0.0)
-            if (p.z >  ok_hauteur_snow && neige_orientation > 0.) // snow
-                col = vec3(1.0);
-            else if (p.z < ok_hauteur_grass)
-                col = vec3(0., 0.5, 0.);
-
-        if (p.z < ok_eau)
+        bool is_water = false;
+        if (tw > t)
         {
-            col = vec3(0.,0.,0.6);
+            // mountains
+            n = Normal( p );
 
-             // Pseudo diffuse lighting
-            float dif = 0.5*(1.0+dot( light1, n ));
-            dif*=dif;
-            col += dif*vec3(0.35);
+            //vec3 ref = reflect( rd, n );
+            //float fre = clamp( 1.0+dot(rd,n), 0.0, 1.0 );
+            //vec3 hal = normalize(light1-rd);
+
+            float ok_slope = 0.5;
+            vec2 sud = vec2(1., 0.);
+            float neige_orientation = dot(n.xy, sud) + clamp(-0.5, 0.5, Noise(p.xy));
+            float ok_hauteur_snow = 625.0+(Noise(p.xy));
+            float ok_hauteur_grass = 500.0;
+            float ok_eau = 450.0;
+            float slope = sqrt(n.x*n.x + n.y*n.y) / n.z ;
+
+            col = vec3(0.2);
+
+            if ((slope < ok_slope) && dot(n, vec3(0.0, 0.0, 1.0)) > 0.0)
+                if (p.z >  ok_hauteur_snow && neige_orientation > 0.) // snow
+                    col = vec3(1.0);
+                else if (p.z < ok_hauteur_grass)
+                    col = vec3(0., 0.5, 0.);
+
         }
         else
         {
-             // Pseudo diffuse lighting
-            float dif = 0.5*(1.0+dot( light1, n ));
-            dif*=dif;
-            
-            col += dif*vec3(0.35);
+            is_water = true;
+            n = Normal(p); // On veut voir ce qu'il y a sous l'eau
+            col = vec3(0.96, 0.85, 0.39);
+            //col = mix(col,vec3(0.07, 0.32, 0.73),0.8 );
+            //col = vec3(0.0, 0.0, 1.0);
         }
+
+
+        float dif = 0.5*(1.0+dot( light1, n ));
+        dif*=dif;
+                
+        col += dif*vec3(0.35);
+
+        if (is_water)
+            col = mix(col,vec3(0.07, 0.22, 0.83), 0.8);
 
 		// fog
         // float fo = 1.0-exp(-pow(0.0005*t,1.5) );
