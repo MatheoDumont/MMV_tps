@@ -9,7 +9,7 @@ Le shader : <https://www.shadertoy.com/view/ws3Bz2>
 
 ## Formes
 
-La fonction modelant le terrain est `float Implicit(in vec3 p)` *ligne 166*. 
+La fonction modelant le terrain est `Implicit(in vec3 p)` *ligne 166*. 
 ### I. Terrain
 Ligne 27.
 Nous composons notre terrain avec du rigde noise et du noise.
@@ -43,7 +43,7 @@ lequel nous creusons avec l'opérateur `Diff`.
 Eau Ligne 58.
 Nous avons séparé le calcul de l'eau de celui du terrain en utilisant 2 fonctions d'intersection, 
 une pour le terrain et une autre pour l'eau, pour pouvoir définir les couleurs différement dans la 
-fonction `vec4 Render( in vec3 ro, in vec3 rd, bool pip )` ligne 295.
+fonction `Render( in vec3 ro, in vec3 rd, bool pip )` ligne 295.
 
 ### VI. Autres
 Pour les autres formes et opérateurs implémentés mais pas forcement testés, il y a :
@@ -53,7 +53,7 @@ Pour les autres formes et opérateurs implémentés mais pas forcement testés, 
 
   
 ## Textures
-Ca se passe ici `vec4 Render( in vec3 ro, in vec3 rd, bool pip )` ligne 295.
+Ca se passe ici `Render( in vec3 ro, in vec3 rd, bool pip )` ligne 295.
 
 * Soit une couleur pour le ciel : ligne  312
 * Si on a de l'eau alors, la couleur qui va avec. 
