@@ -1,9 +1,9 @@
 # Rapport du TP 1 de MMV
 Notre groupe est compose de Jean-Baptiste Loutfalla et Matheo Dumont.
   
-Le shader : <>
+Le shader : <https://www.shadertoy.com/view/ws3Bz2>
 
-!(Resultat)[]
+![Resultat](data/screenshot.png)
 
 # Notre shader
 
