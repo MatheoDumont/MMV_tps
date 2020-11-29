@@ -188,24 +188,22 @@ float Implicit(in vec3 p)
     b = BlendImplicite(boule, segment, 100.0);
     h.x = BlendImplicite(h.x, b, 500.0);
 
-    // Surplomb
+    // Zone supprimée de la montagne
     radius = 100.f;
     noise = 50.* Noise(p / 50.) + 10. * Noise(p / 10.);
-
-    // Zone supprimée de la montagne
-    b = Segment(p, vec3(125.f, -270.f, 455.f), vec3(-10.f, -250.f, 455.f), radius, noise);
+    float d = Segment(p, vec3(125.f, -270.f, 455.f), vec3(-10.f, -250.f, 455.f), radius, noise);
     segment = Segment(p, vec3(200.f, -220.f, 455.f), vec3(-10.f, -200.f, 455.f), radius + 10.0, noise);
-    boule = Sphere(p, vec3(0.f, -200.f, 455.f), 20.0, 1.0);
+    // boule = Sphere(p, vec3(0.f, -200.f, 455.f), 20.0, 1.0);
 
-    b = BlendImplicite(b, segment, 100.0);
-    b = BlendImplicite(b, boule, 100.0);
+    d = BlendImplicite(d, segment, 100.0);
+    // d = BlendImplicite(d, boule, 100.0);
     
-    h.x = Diff(h.x, b);
+    h.x = Diff(h.x, d);
 
     // Correction de la suppression trop forte dans l'eau du lac
-    radius = 50.0;
-    b = Segment(p, vec3(200.f, -150.f, 315.f), vec3(-10.f, -170.f, 350.f), radius, 1.0);
-    h.x = BlendImplicite(h.x, b, 100.0);
+    // radius = 50.0;
+    // b = Segment(p, vec3(200.f, -150.f, 315.f), vec3(-10.f, -170.f, 350.f), radius, 1.0);
+    // h.x = BlendImplicite(h.x, b, 100.0);
 
     return h.x * h.y;
 }
