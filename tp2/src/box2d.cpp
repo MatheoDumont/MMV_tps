@@ -2,9 +2,13 @@
 
 bool Box2D::inside(const vec2 &v) const
 {
-    
+    if (v.x < origin.x || v.x > origin.x + length || v.y < origin.y || v.y > origin.y + length)
+        return false;
+    else
+        return true;
 }
 
 bool Box2D::intersect(const Box2D &b) const
 {
+    if ()
 }
