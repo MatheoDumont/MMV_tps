@@ -1,19 +1,24 @@
 #ifndef GRID_H
 #define GRID_H
 #include "box2d.h"
+#include "vec.h"
 
-class Grid : Box2D
+class Grid : public Box2D
 {
-private:
+protected:
     int nx, ny;
+    // vec2 diagonal; pas besoins, on stock deja la taille dans Box2D => length
+    vec2 celldiagonal;
+    vec2 inversecelldiagonal;
 
 public:
-    Grid(const Box2d &b, int nx, int ny);
+    Grid(const Box2D &b, int nx, int ny);
     ~Grid();
 
     int index(int i, int j) const;
-    bool inside(int, int) const;
-    bool border(int, int) const;
+    bool inside(int i, int j) const;
+    bool border(int i, int j) const;
+    vec2 vertex(int i, int j) const;
 };
 
 #endif

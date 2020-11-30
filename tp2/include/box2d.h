@@ -1,9 +1,11 @@
 #ifndef BOX_2_H
 #define BOX_2_H
+
 #include "vec.h"
+
 class Box2D
 {
-private:
+protected:
     vec2 origin;
     float length;
 

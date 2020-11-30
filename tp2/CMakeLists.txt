@@ -37,7 +37,7 @@ target_include_directories(${PROJECT_NAME}
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
-  Qt5::Core 
+  Qt5::Core
   Qt5::Gui
   OpenGL::GL
 )

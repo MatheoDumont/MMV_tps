@@ -23,6 +23,16 @@ std::ostream &operator<<(std::ostream &o, const vec2 &v)
     return o;
 }
 
+vec3 operator+(const vec3 &v, const float k)
+{
+    return vec3(v.x + k, v.y + k, v.z + k);
+}
+
+vec2 operator+(const vec2 &v, const float k)
+{
+    return vec2(v.x + k, v.y + k);
+}
+
 vec3 operator-(const vec3 &v1, const vec3 &v2)
 {
     return vec3(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
@@ -134,4 +144,3 @@ vec3 cross(const vec3 &v1, const vec3 &v2)
     v.z = (v1.x * v2.y) - (v1.y * v2.x);
     return v;
 }
-
