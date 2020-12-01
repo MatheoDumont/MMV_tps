@@ -6,12 +6,14 @@
 class Box2D
 {
 protected:
-    vec2 origin;
-    float length;
+    vec2 a, b;
+    vec2 diagonal;
 
 public:
-    Box2D(vec2 origin, float length);
-    // ~Box2D();
+    Box2D();
+    Box2D(const vec2 &_a, const vec2 &_b);
+    Box2D(const Box2D &box);
+    Box2D(const vec2 &center, double radius);
 
     bool inside(const vec2 &v) const;
     bool intersect(const Box2D &b) const;

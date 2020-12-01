@@ -17,6 +17,10 @@ find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt5 COMPONENTS OpenGL REQUIRED)
 find_package(OpenGL REQUIRED)
 
+
+# Copie le dossier data dans le dossier de build 
+file(COPY "data" DESTINATION ${PROJECT_BINARY_DIR})
+
 file(GLOB SOURCES src/*.cpp)
 
 qt5_wrap_cpp(
@@ -42,6 +46,3 @@ target_link_libraries(${PROJECT_NAME}
   OpenGL::GL
 )
 
-configure_file(
-  data/v_height_map.png ${CMAKE_CURRENT_BINARY_DIR}data/v_height_map.png COPYONLY
-)

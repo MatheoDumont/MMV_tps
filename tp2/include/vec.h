@@ -3,65 +3,66 @@
 
 #include <iostream>
 
-struct vec3
-{
-    double x;
-    double y;
-    double z;
-
-    vec3() : x(0), y(0), z(0) {}
-    vec3(const vec3 &v) : x(v.x), y(v.y), z(v.z) {}
-    vec3(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {}
-
-    bool operator==(const vec3 &o) const;
-};
-
 struct vec2
 {
-    double x;
-    double y;
+    double x, y;
 
-    vec2() : x(0), y(0) {}
-    vec2(const vec2 &v) : x(v.x), y(v.y) {}
-    vec2(float x_, float y_) : x(x_), y(y_) {}
+    vec2();
+    explicit vec2(double a);
+    vec2(double _x, double _y);
+    vec2(const vec2& v);
 
-    bool operator==(const vec2 &o) const;
+    double length() const;
+    vec2 normalize() const;
+
+    vec2& operator=(const vec2 &rhs);
+    bool operator==(const vec2 &rhs) const;
 };
 
-vec3 operator+(const vec3 &v, const float k);
-vec2 operator+(const vec2 &v, const float k);
+struct vec3
+{
+    double x, y, z;
 
-vec3 operator-(const vec3 &p1, const vec3 &p2);
-vec2 operator-(const vec2 &p1, const vec2 &p2);
+    vec3();
+    explicit vec3(double a);
+    vec3(double _x, double _y, double _z);
+    vec3(const vec3& v);
+    vec3(const vec2& v, double _z);
 
-vec3 operator*(const vec3 &p1, const vec3 &p2);
-vec3 operator*(float k, const vec3 &p);
-vec3 operator*(const vec3 &p, float k);
+    double length() const;
+    vec3 normalize() const;
 
-vec2 operator*(const vec2 &p1, const vec2 &p2);
-vec2 operator*(float k, const vec2 &p);
-vec2 operator*(const vec2 &p, float k);
+    vec3& operator=(const vec3 &rhs);
+    bool operator==(const vec3 &rhs) const;
+};
 
-vec3 operator/(const vec3 &p1, const vec3 &p2);
-vec3 operator/(const vec3 &p, float k);
+vec2 operator+(double k, const vec2 &v);
+vec2 operator+(const vec2 &v, double k);
+vec2 operator+(const vec2 &v1, const vec2 &v2);
+vec2 operator-(const vec2 &v);
+vec2 operator-(const vec2 &v1, const vec2 &v2);
+vec2 operator*(double k, const vec2 &v);
+vec2 operator*(const vec2 &v, double k);
+vec2 operator*(const vec2& v1, const vec2 &v2);
+vec2 operator/(const vec2& v, double k);
 
-vec2 operator/(const vec2 &p1, const vec2 &p2);
-vec2 operator/(const vec2 &p, float k);
+vec3 operator+(double k, const vec3 &v);
+vec3 operator+(const vec3 &v, double k);
+vec3 operator+(const vec3 &v1, const vec3 &v2);
+vec3 operator-(const vec3 &v);
+vec3 operator-(const vec3 &v1, const vec3 &v2);
+vec3 operator*(double k, const vec3 &v);
+vec3 operator*(const vec3 &v, double k);
+vec3 operator*(const vec3 &v1, const vec3 &v2);
+vec3 operator/(const vec3 &v, double k);
 
-vec3 operator+(const vec3 &p1, const vec3 &p2);
 
-vec2 operator+(const vec2 &p1, const vec2 &p2);
+double dot(const vec2 &v1, const vec2 &v2);
+double dot(const vec3 &v1, const vec3 &v2);
 
-float norm(const vec3 &p);
-vec3 normalize(const vec3 &p);
-float dot(const vec3 &p1, const vec3 &p2);
-vec3 cross(const vec3 &p1, const vec3 &p2);
+vec3 cross(const vec3 &v1, const vec3 &v2);
 
-float norm(const vec2 &p);
-vec2 normalize(const vec2 &p);
-float dot(const vec2 &p1, const vec2 &p2);
-
-std::ostream &operator<<(std::ostream &o, const vec3 &p);
-std::ostream &operator<<(std::ostream &o, const vec2 &p);
+std::ostream &operator<<(std::ostream &o, const vec2 &v);
+std::ostream &operator<<(std::ostream &o, const vec3 &v);
 
 #endif
