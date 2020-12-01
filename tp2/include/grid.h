@@ -13,7 +13,7 @@ protected:
 
 public:
     Grid(const Box2D &b, int nx, int ny);
-    ~Grid();
+    // ~Grid();
 
     int index(int i, int j) const;
     bool inside(int i, int j) const;

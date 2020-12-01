@@ -41,3 +41,7 @@ target_link_libraries(${PROJECT_NAME}
   Qt5::Gui
   OpenGL::GL
 )
+
+configure_file(
+  data/v_height_map.png ${CMAKE_CURRENT_BINARY_DIR}data/v_height_map.png COPYONLY
+)

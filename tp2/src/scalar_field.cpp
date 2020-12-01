@@ -48,7 +48,7 @@ vec2 SF2::gradient(int i, int j) const
  * d2f / dx2 ~ (f(x + epsilon) - 2f(x) + f(x + epsilon)) / (epsilon * epsilon)
  * https://fr.wikipedia.org/wiki/Laplacien_discret
  */
-vec2 SF2::laplacien(int i, int j) const
+double SF2::laplacien(int i, int j) const
 {
 
 	double laplacian = 0.0;
@@ -66,4 +66,16 @@ vec2 SF2::laplacien(int i, int j) const
 		laplacian += (at(i, j) - 2.0 * at(i, j - 1) + at(i, j - 2)) / (celldiagonal.y * celldiagonal.y);
 	else
 		laplacian += (at(i, j + 1) - 2.0 * at(i, j) + at(i, j - 1)) / (celldiagonal.y * celldiagonal.y);
+	
+	return laplacian;
+}
+
+double SF2::normalization(double x, double boundmin, double boundmax) const
+{
+	return x * (boundmax - boundmin) + boundmin;
+}
+
+vec2 SF2::clamp(const vec2 &) const
+{
+	return vec2(); // TODO
 }

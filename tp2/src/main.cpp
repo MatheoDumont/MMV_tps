@@ -1,4 +1,4 @@
-
+#include "height_field.h"
 
 int main(int argc, char const *argv[])
 {

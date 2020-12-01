@@ -11,7 +11,7 @@ protected:
 
 public:
     Box2D(vec2 origin, float length);
-    ~Box2D();
+    // ~Box2D();
 
     bool inside(const vec2 &v) const;
     bool intersect(const Box2D &b) const;

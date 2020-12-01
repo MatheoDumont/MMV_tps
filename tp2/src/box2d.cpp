@@ -1,5 +1,7 @@
 #include "box2d.h"
 
+Box2D::Box2D(vec2 _origin, float _length) : origin(_origin), length(_length) {}
+
 bool Box2D::inside(const vec2 &v) const
 {
     if (v.x < origin.x || v.x > (origin.x + length) ||
