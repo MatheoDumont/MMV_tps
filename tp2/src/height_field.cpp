@@ -67,7 +67,7 @@ vec3 HeightField::normal(int i, int j) const
     return vec3(-g, 1.0).normalize();
 }
 
-QImage HeightField::greyscale() const
+QImage HeightField::grayscale() const
 {
     QImage image(nx, ny, QImage::Format_Grayscale8);
     // https://en.cppreference.com/w/cpp/algorithm/minmax_element

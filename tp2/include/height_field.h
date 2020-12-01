@@ -18,7 +18,7 @@ public :
     vec3 vertex(int i, int j) const;
     vec3 normal(int i, int j) const;
 
-    QImage greyscale() const;
+    QImage grayscale() const;
     QImage shade() const;
     void exportObj() const;
 
