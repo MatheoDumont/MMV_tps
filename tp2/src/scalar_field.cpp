@@ -64,6 +64,21 @@ double SF::normalization(double x, double in_min, double in_max, double out_min,
     return x * (out_max - out_min) + out_min;
 }
 
+double SF::normalization(double x, double out_min, double out_max) const
+{
+    return normalization(x, 0.0, 1.0, out_min, out_max);
+}
+
+double SF::clamp(double min, double max, double x) const
+{
+    if (x >= max)
+        return max;
+    else if (x <= min)
+        return min;
+
+    return x;
+}
+
 vec2 SF::clamp(const vec2 &) const
 {
     return vec2(); // TODO

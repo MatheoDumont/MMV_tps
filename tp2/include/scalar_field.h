@@ -40,6 +40,7 @@ public:
      * [in_min, in_max] = [0, 1]
      */
     double normalization(double x, double out_min, double out_max) const;
+    double clamp(double min, double max, double x) const;
     vec2 clamp(const vec2 &) const;
 };
 

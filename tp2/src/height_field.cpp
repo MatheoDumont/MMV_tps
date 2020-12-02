@@ -24,12 +24,12 @@ HeightField::HeightField(const QImage &image, const Box2D &box,
     else
         grayscale = image;
 
-    std::cout << image.format() << std::endl;
     // Bon bah je sens qu'on va pas pouvoir être plus précis qu'un int [0, 255] ... :/
     for (int i = 0, y = 0; y < image.height(); y += delta_height, i++)
         for (int j = 0, x = 0; x < image.width(); x += delta_width, j++)
             field[index(i, j)] = normalization(qGray(grayscale.pixel(y, x)), 0., 255., boundmin, boundmax);
 }
+
 /*
  je divise par 255 du coup c'est deja dans  [0, 1]
     Faut checker sur la doc Qt si la valeur est bien [0, 255]
@@ -104,13 +104,14 @@ QImage HeightField::grayscale() const
     const auto pair = std::minmax_element(field.begin(), field.end());
     const auto min = pair.first;
     const auto max = pair.second;
+    double k = 1.0;
 
     double val;
-    for (int y = 0; y < ny; y++)
-        for (int x = 0; x < nx; x++)
+    for (int i = 0; i < nx; i++)
+        for (int j = 0; j < ny; j++)
         {
-            val = normalization(height(y, x), *min, *max, 0, 255);
-            image.setPixelColor(y, x, QColor(val));
+            val = clamp(0., 255., normalization(height(i, j), *min, *max, 0., 255.) * k) ;
+            image.setPixelColor(i, j, QColor(val));
         }
 
     return image;

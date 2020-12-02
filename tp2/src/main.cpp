@@ -29,7 +29,7 @@ int main(int argc, char const *argv[])
     res.save("res.png");
 
     SF sf = hf.laplacianMap();
-    HeightField(sf).grayscale().save("res_laplacian.png");
+    HeightField(sf).grayscale().save("res_laplacian.png"); // grayscale pas ouf
 
     sf = hf.slopeMap();
     HeightField(sf).grayscale().save("res_slope.png");
