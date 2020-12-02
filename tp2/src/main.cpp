@@ -11,7 +11,7 @@
  * TODO:
  *     - Rendre le truc un peu plus paramétrable (genre dire en CLI l'image et les infos de bounds, ...)
  *     - Faire un affichage sous Qt de l'image (ou directement faire le rendu 3D)
- *          - QApplication avec une QWindow devrait être bon pour du OpenGL (modifier CMakeLists.txt -> suppromer Qt::OpenGL et mettre Qt::GUI à la place)
+ *          - QApplication avec une QWindow devrait être bon pour du OpenGL
  *     - Lissage masque 3*3 et Blur
  *     - Fonction Clamp
  *     - export exportObj
