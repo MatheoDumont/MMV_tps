@@ -11,13 +11,10 @@ HeightField::HeightField(const QImage &image, const Box2D &box,
 {
     // Interpoler linéaire entre les 2 z (bound min et max correspondent respectivement
     // a la couleur min et la couleur max(blanc et noir))
-    int delta_height = 1, delta_width = 1;
-    if (image.width() >= nx && image.height() >= ny)
-    {
-        delta_height = floor(image.height() / ny);
-        delta_width = floor(image.width() / nx);
-    }
 
+    // Pas besoin de delta_x et delta_y parce que la Grid est initialisé avec
+    // les dimensions de l'image
+    
     QImage grayscale;
     if (image.isGrayscale() != true)
         grayscale = image.convertToFormat(QImage::Format_Grayscale8);
@@ -25,30 +22,12 @@ HeightField::HeightField(const QImage &image, const Box2D &box,
         grayscale = image;
 
     // Bon bah je sens qu'on va pas pouvoir être plus précis qu'un int [0, 255] ... :/
-    for (int i = 0, y = 0; y < image.height(); y += delta_height, i++)
-        for (int j = 0, x = 0; x < image.width(); x += delta_width, j++)
-            field[index(i, j)] = normalization(qGray(grayscale.pixel(y, x)), 0., 255., boundmin, boundmax);
+    for (int i = 0; i < image.height(); ++i)
+        for (int j = 0; j < image.width(); ++j)
+            field[index(i, j)] = normalization(qGray(grayscale.pixel(i, j)),
+                                               0.0, 255.0,
+                                               boundmin, boundmax);
 }
-
-/*
- je divise par 255 du coup c'est deja dans  [0, 1]
-    Faut checker sur la doc Qt si la valeur est bien [0, 255]
-    ouep pas faux, en plus j'ai vu dans le readme de l'image que jai mis que c'est stocke en 16bit de grayscale et pas 8
-    A ce moment là, on peut charger l'image normalement et après, dans cette fonction, la faire devenir grayscale 8 bit classique
-
-    on perdra de la precision, on peut toujours prendre avec la fonction de thibault = normalizaton(image.pixel(i,j), 0, 2^nb, hauteurmin, hauteurmax)
-    nb le nombre de bit de limage
-    Ouais, je me demande si Qt à pas un moyen de récupérer le format de stockage de l'image
-    je crois que on peut demander le format de l'image a qt (on a eu la même idée x))
-    oui mdr ->
-          https://doc.qt.io/qt-5/qimage.html#format (https://doc.qt.io/archives/qtjambi-4.5.2_01/com/trolltech/qt/gui/QImage.Format.html)
-        https://doc.qt.io/qt-5/qimage.html#image-information
-    je re
-
-    image.pixel() -> QRgb
-    qGray(QRgb) -> int [0, 255]
-
-*/
 
 double HeightField::height(int i, int j) const
 {
@@ -100,18 +79,18 @@ vec3 HeightField::normal(int i, int j) const
 QImage HeightField::grayscale() const
 {
     QImage image(nx, ny, QImage::Format_Grayscale8);
+    
     // https://en.cppreference.com/w/cpp/algorithm/minmax_element
     const auto pair = std::minmax_element(field.begin(), field.end());
     const auto min = pair.first;
     const auto max = pair.second;
-    double k = 1.0;
 
     double val;
-    for (int i = 0; i < nx; i++)
-        for (int j = 0; j < ny; j++)
+    for (int i = 0; i < nx; ++i)
+        for (int j = 0; j < ny; ++j)
         {
-            val = clamp(0., 255., normalization(height(i, j), *min, *max, 0., 255.) * k) ;
-            image.setPixelColor(i, j, QColor(val));
+            val = normalization(height(i, j), *min, *max, 0.0, 255.0);
+            image.setPixelColor(i, j, QColor(val, val, val));
         }
 
     return image;

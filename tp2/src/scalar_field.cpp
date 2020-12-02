@@ -1,9 +1,6 @@
 #include "scalar_field.h"
 
-SF::SF(const Grid &g) : Grid(g)
-{
-    field.resize(nx * ny, 0.0);
-}
+SF::SF(const Grid &g) : Grid(g), field(nx * ny, 0.0) {}
 
 double SF::at(int i, int j) const
 {
@@ -29,7 +26,7 @@ vec2 SF::gradient(int i, int j) const
 
     if (j == 0)
         grad.y = (at(i, j + 1) - at(i, j)) * inversecelldiagonal.y;
-    else if (i == ny - 1)
+    else if (j == ny - 1)
         grad.y = (at(i, j) - at(i, j - 1)) * inversecelldiagonal.y;
     else // cas general
         grad.y = (at(i, j + 1) - at(i, j - 1)) * 0.5 * inversecelldiagonal.y;

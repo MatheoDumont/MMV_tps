@@ -35,7 +35,8 @@ public:
      */
     double laplacian(int i, int j) const;
 
-    double normalization(double x, double in_min, double in_out, double out_min, double out_max) const;
+    double normalization(double x, double in_min, double in_max, double out_min, double out_max) const;
+    
     /**
      * [in_min, in_max] = [0, 1]
      */
