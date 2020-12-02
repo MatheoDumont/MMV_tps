@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include <QColor>
+#include <QImage>
 
 HeightField::HeightField(const SF &s) : SF(s) {}
 HeightField::HeightField(const QImage &image, const Box2D &box,
@@ -11,14 +11,44 @@ HeightField::HeightField(const QImage &image, const Box2D &box,
 {
     // Interpoler linéaire entre les 2 z (bound min et max correspondent respectivement
     // a la couleur min et la couleur max(blanc et noir))
+    int delta_height = 1, delta_width = 1;
+    if (image.width() >= nx && image.height() >= ny)
+    {
+        delta_height = floor(image.height() / ny);
+        delta_width = floor(image.width() / nx);
+    }
 
-    int delta_height = floor(image.height() / ny);
-    int delta_width = floor(image.width() / nx);
+    QImage grayscale;
+    if (image.isGrayscale() != true)
+        grayscale = image.convertToFormat(QImage::Format_Grayscale8);
+    else
+        grayscale = image;
 
+    std::cout << image.format() << std::endl;
+    // Bon bah je sens qu'on va pas pouvoir être plus précis qu'un int [0, 255] ... :/
     for (int i = 0, y = 0; y < image.height(); y += delta_height, i++)
         for (int j = 0, x = 0; x < image.width(); x += delta_width, j++)
-            field[index(i, j)] = normalization(image.pixel(x, y) / 255., boundmin, boundmax);
+            field[index(i, j)] = normalization(qGray(grayscale.pixel(y, x)), 0., 255., boundmin, boundmax);
 }
+/*
+ je divise par 255 du coup c'est deja dans  [0, 1]
+    Faut checker sur la doc Qt si la valeur est bien [0, 255]
+    ouep pas faux, en plus j'ai vu dans le readme de l'image que jai mis que c'est stocke en 16bit de grayscale et pas 8
+    A ce moment là, on peut charger l'image normalement et après, dans cette fonction, la faire devenir grayscale 8 bit classique
+
+    on perdra de la precision, on peut toujours prendre avec la fonction de thibault = normalizaton(image.pixel(i,j), 0, 2^nb, hauteurmin, hauteurmax)
+    nb le nombre de bit de limage
+    Ouais, je me demande si Qt à pas un moyen de récupérer le format de stockage de l'image
+    je crois que on peut demander le format de l'image a qt (on a eu la même idée x))
+    oui mdr ->
+          https://doc.qt.io/qt-5/qimage.html#format (https://doc.qt.io/archives/qtjambi-4.5.2_01/com/trolltech/qt/gui/QImage.Format.html)
+        https://doc.qt.io/qt-5/qimage.html#image-information
+    je re
+
+    image.pixel() -> QRgb
+    qGray(QRgb) -> int [0, 255]
+
+*/
 
 double HeightField::height(int i, int j) const
 {
@@ -44,13 +74,13 @@ double HeightField::averageSlope(int i, int j) const
         for (y = -1; y < 2; ++y)
             if (border(i + x, j + y) == false)
             {
-                avg += abs(at(i, j) - at(i + x, j + y));
+                avg += abs(at(i, j) - at(i + x, j + y)); // Ou abs(slope(i, j) - slope(i + x, j + y))
                 count++;
             }
 
     if (count != 0.0)
         avg /= double(count);
-    
+
     return avg;
 }
 
@@ -75,9 +105,13 @@ QImage HeightField::grayscale() const
     const auto min = pair.first;
     const auto max = pair.second;
 
+    double val;
     for (int y = 0; y < ny; y++)
         for (int x = 0; x < nx; x++)
-            image.setPixel(y, x, normalization(height(y, x) / *max, 0, 255));
+        {
+            val = normalization(height(y, x), *min, *max, 0, 255);
+            image.setPixelColor(y, x, QColor(val));
+        }
 
     return image;
 }
@@ -100,7 +134,7 @@ QImage HeightField::shade() const
             d *= d;
 
             image.setPixelColor(i, j, QColor(d)); // Pour tester
-            
+
             // en haut de bosse laplcien tres negatif, tres positif = plus profond d'un creux , 0 = etendue plate
 
             // Altérer la couleur en fonction de l'altitude
@@ -110,7 +144,7 @@ QImage HeightField::shade() const
             // image.setPixel(i, j, ...); // donner light dir -> gagner + un shader de machin : ambiennte + diffuse
         }
     }
-    
+
     return image;
 }
 
@@ -136,8 +170,20 @@ SF HeightField::laplacianMap() const
     return s;
 }
 
+std::vector<Point> HeightField::getPoints() const
+{
+    std::vector<Point> points;
+    for (int i = 0; i < nx; i++)
+      for (int j = 0; j < ny; ++j)
+          points.push_back(Point(i, j, height(i, j)));
+
+    return points;
+}
+
 SF HeightField::drainage() const
 {
+    std::vector<Point> points = getPoints();
+    std::sort(points.begin(), points.end());
     // On va se casser les dents dessus
     // pro tips : on attend la correction +1
     // calcul le drainage, algorithme de calcul d'aire de je sais pas quoi (pas sur)
@@ -165,3 +211,113 @@ SF HeightField::drainage() const
 
     return SF(Grid(Box2D(a, b), nx, ny)); // pour compiler
 }
+
+
+/**
+ * Code du prof pour qu'on ait la logique
+ */
+// int HeightField::CheckFlowSlope(const QPoint &p, QPoint *point, double *height, double *slope, double *nslope, int &mask) const
+// {
+//     int n = 0;
+//     double zp = at(p);
+//     double slopesum = 0.0;
+//     mask = 0;
+//     for (int i = 0; i < 8; i++)
+//     {
+//         QPoint b = p + Array2::next[i]; // Skip if point is not inside the domain
+//         if (!InsideVertexIndex(b.x(), b.y()))
+//             continue;
+//
+//         double step = at(b) - zp;
+//         if (step < 0.0)
+//         {
+//             point[n] = b;
+//             height[n] = -step;
+//             // length tableau de taille 8 de length des cell dans la 8-adjacence = [1, sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2)]
+//             slope[n] = -step / length[i];
+//             slopesum += slope[n];
+//             n++;
+//             mask |= 1 << i;
+//         }
+//     }
+//     // Relative slope
+//     for (int k = 0; k < n; k++)
+//         nslope[k] = slope[k] / slopesum;
+//
+//     return n;
+// }
+
+// Tain j'ai vraiment l'impression qu'il est en train de refaire le cours de raytracing x)
+/*
+enfin, de ce que je m'en souviens, oui
+~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
+oui alors
+--------------------------
+non Mais
+----------------------------
+triter des terrains qui font 10 km, ca fait le job, pas besoinsd e plus de precision, voila Pour
+le calcul d'accessibilite
+--------------------------
+pas tres tres difficile, ya une seule fonciton qui peut retenir notre attention veritablement
+calcul de la constante de lipschitz
+et comment je calcul l'intersection et le terrain
+vous avez vu quand on a fait le prmier tp avec le shahder je peux reprenseter le terrain
+avec f(x, y) =0
+donc je considere mon terrain comme un surface implicite, et on fait un spheretracing
+donc la constante de lipschitz pour notre fonction c'est ... x) Tintintin
+je m'emmeerde et ca me fait ecouter
+je lai plus ...
+normalement je vous avais parle de ca ... excusez moi
+...
+il me semblait que j'en fuck
+
+je vous rappelle que ici on travail avec une surface d'elevation z = h(x, y)
+f(x,y,z) = z - h(x,y)
+distance bound slide 21 implicit modeling
+µ = sqrt(1 + lambda*lambda)
+
+si on a un terrain definit par une grille d'elevation, qu'elle est la borne de ce machin la:
+on a plus qu'a trouver la fonction mu et c'est gagner => bonne question de fdp RIP nous
+je vous laisse mourir
+X_X
+mtn il regarde son porn :smirk:
+moi auss je suis perdu
+
+f/mu c'est un distancebound et lambda lipschitz de h
+f est un scalarfield qui a une seule Propriété de borne
+distancebound = fonction telle que b minor la distance euclidienne
+f/mu minor est bien une distancebound
+
+on a une grille d'echantillon, comment calculer le lambda de h :
+le max de toutes les diffs de pentes adjacentes
+Pour toutes les pentes : max(pente) = lambda
+pour chqaue pts, calculer la plus grande pente avec les 8 voisins et calculer le sup de tout ca. et c'est fini
+
+double SF::K() const
+{
+  double k = 0.;
+
+  for (int i = 0; i < nx : i++)
+    for (int j = 0; j < ny; ++j)
+        k = math::max(k, gradient(i,j).length());
+
+  return k;
+}
+
+l'intersect :
+on l'a dans les shader : on doit reconnaitre en gros le coeur du sphere dans le raymarching (jai la photo): Noice
+
+quetion : souvent ce qu'on veut faire pour un terrain a une cerataine position : on veut approximer l'eclairement,
+comment est ce que les differents pts du terrain sont ensoleilles au cours de l'annee.
+Qu'est ce qu'il faudrait faire pour calculer l'ensoleillement moyen dans l'annee :
+je sais pas
+on fait des releves puis grosse moyenne
+
+
+E(p) = somme sur tous les jour, de la somme sur toutes les heures de l'ensoleillement au point p,
+puisque la position soleil s varie en fonction de l'heure et du jour.
+s est fonction du jour, de l'heure et et et ? de la latitude et longitude.
+ya des codes pour connaitre ca, et faire une jolie map
+si on veut sucer on fait ca
+*/

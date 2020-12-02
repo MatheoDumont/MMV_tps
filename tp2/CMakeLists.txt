@@ -18,7 +18,7 @@ find_package(Qt5 COMPONENTS OpenGL REQUIRED)
 find_package(OpenGL REQUIRED)
 
 
-# Copie le dossier data dans le dossier de build 
+# Copie le dossier data dans le dossier de build
 file(COPY "data" DESTINATION ${PROJECT_BINARY_DIR})
 
 file(GLOB SOURCES src/*.cpp)
@@ -45,4 +45,3 @@ target_link_libraries(${PROJECT_NAME}
   Qt5::Gui
   OpenGL::GL
 )
-

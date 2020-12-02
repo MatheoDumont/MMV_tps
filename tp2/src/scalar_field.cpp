@@ -54,13 +54,14 @@ double SF::laplacian(int i, int j) const
         laplacian += (at(i, j) - 2.0 * at(i, j - 1) + at(i, j - 2)) * (inversecelldiagonal.y * inversecelldiagonal.y);
     else
         laplacian += (at(i, j + 1) - 2.0 * at(i, j) + at(i, j - 1)) * (inversecelldiagonal.y * inversecelldiagonal.y);
-	
+
     return laplacian;
 }
 
-double SF::normalization(double x, double boundmin, double boundmax) const
+double SF::normalization(double x, double in_min, double in_max, double out_min, double out_max) const
 {
-    return x * (boundmax - boundmin) + boundmin;
+    x = (x - in_min) / (in_max - in_min);
+    return x * (out_max - out_min) + out_min;
 }
 
 vec2 SF::clamp(const vec2 &) const

@@ -2,8 +2,21 @@
 #define HEIGHT_FIELD_H
 
 #include "scalar_field.h"
+#include <vector>
 
 #include <QImage>
+
+struct Point {
+    int i, j;
+    double height;
+
+    Point(int _i, int _j, double _height) : i(_i), j(_j), height(_height) {}
+
+    bool operator<(const Point &p) const
+    {
+        return height < p.height;
+    }
+};
 
 class HeightField : public SF
 {
@@ -24,6 +37,8 @@ public :
 
     SF slopeMap() const;
     SF laplacianMap() const;
+
+    std::vector<Point> getPoints() const;
     SF drainage() const;
 };
 

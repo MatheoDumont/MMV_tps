@@ -34,8 +34,12 @@ public:
      * (https://fr.wikipedia.org/wiki/Laplacien_discret)
      */
     double laplacian(int i, int j) const;
-    
-    double normalization(double x, double boundmin, double boundmax) const;
+
+    double normalization(double x, double in_min, double in_out, double out_min, double out_max) const;
+    /**
+     * [in_min, in_max] = [0, 1]
+     */
+    double normalization(double x, double out_min, double out_max) const;
     vec2 clamp(const vec2 &) const;
 };
 
