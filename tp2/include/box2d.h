@@ -17,6 +17,8 @@ public:
 
     bool inside(const vec2 &v) const;
     bool intersect(const Box2D &b) const;
+
+    Box2D& operator=(const Box2D &box);
 };
 
 #endif

@@ -28,3 +28,15 @@ bool Box2D::intersect(const Box2D &box) const
     else
         return true;
 }
+
+Box2D& Box2D::operator=(const Box2D &box)
+{
+    if (this != &box)
+    {
+        a = box.a;
+        b = box.b;
+        diagonal = box.diagonal;
+    }
+
+    return *this;
+}

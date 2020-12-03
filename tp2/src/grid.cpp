@@ -1,5 +1,6 @@
 #include "grid.h"
 
+Grid::Grid() : Box2D() {}
 Grid::Grid(const Box2D &box, int _nx, int _ny) : Box2D(box), nx(_nx), ny(_ny)
 {
     celldiagonal = vec2(diagonal.x / double(nx - 1),

@@ -4,6 +4,7 @@
 #include <cmath>
 #include <QImage>
 
+HeightField::HeightField() : SF() {}
 HeightField::HeightField(const SF &s) : SF(s) {}
 HeightField::HeightField(const QImage &image, const Box2D &box,
                          double boundmin, double boundmax)

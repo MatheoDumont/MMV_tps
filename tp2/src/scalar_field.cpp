@@ -1,5 +1,6 @@
 #include "scalar_field.h"
 
+SF::SF() : Grid(), field() {}
 SF::SF(const Grid &g) : Grid(g), field(nx * ny, 0.0) {}
 
 double SF::at(int i, int j) const

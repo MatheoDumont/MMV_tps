@@ -12,6 +12,7 @@ protected:
     std::vector<double> field;
 
 public:
+    SF();
     SF(const Grid &g);
 
     double at(int i, int j) const;

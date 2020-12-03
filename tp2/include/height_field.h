@@ -21,6 +21,7 @@ struct Point {
 class HeightField : public SF
 {
 public :
+    HeightField();
     HeightField(const SF& s);
     HeightField(const QImage &image, const Box2D &box, double boundmin, double boundmax);
 

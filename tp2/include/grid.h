@@ -1,5 +1,6 @@
 #ifndef GRID_H
 #define GRID_H
+
 #include "box2d.h"
 #include "vec.h"
 
@@ -12,6 +13,7 @@ protected:
     vec2 inversecelldiagonal;
 
 public:
+    Grid();
     Grid(const Box2D &box, int _nx, int _ny);
 
     int index(int i, int j) const;
