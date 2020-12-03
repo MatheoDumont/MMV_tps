@@ -24,25 +24,33 @@ find_package(OpenGL REQUIRED)
 # Copie le dossier data dans le dossier de build
 file(COPY "data" DESTINATION ${PROJECT_BINARY_DIR})
 
-file(GLOB SOURCES src/*.cpp)
+file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
+file(GLOB UI_FILES "${PROJECT_SOURCE_DIR}/src/*.ui")
 
-qt5_wrap_cpp(
+qt_wrap_cpp(
+  SOURCES
+)
+
+qt_wrap_ui(
+  "${UI_FILES}"
   SOURCES
 )
 
 add_executable(
   ${PROJECT_NAME}
-  ${SOURCES}
+  "${SOURCES}"
 )
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC
-  "${PROJECT_SOURCE_DIR}/include")
+  "${PROJECT_SOURCE_DIR}/include"
+  "${PROJECT_BUILD_DIR}")
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
   Qt5::Core
   Qt5::Gui
+  Qt5::Widgets
   OpenGL::GL
 )

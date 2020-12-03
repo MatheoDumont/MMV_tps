@@ -1,3 +1,6 @@
+#include "mainwindow.h"
+#include <QApplication>
+
 #include <iostream>
 #include <QImage>
 
@@ -18,8 +21,11 @@
  *          - *lecture de doc intensifies*
  *     - Shade dans HeightField
  */ // sugoi sugoi
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
+    QApplication app(argc, argv);
+    MainWindow w;
+    /*
     QImage image("data/v_height_map.png");
     Box2D box(vec2(0.0, 0.0), vec2(image.width(), image.height()));
 
@@ -33,6 +39,8 @@ int main(int argc, char const *argv[])
 
     sf = hf.slopeMap();
     HeightField(sf).grayscale().save("res_slope.png");
+    */
 
-    return 0;
+    w.show();
+    return app.exec();
 }
