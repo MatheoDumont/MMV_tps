@@ -20,6 +20,20 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <item alignment="Qt::AlignLeft">
+     <widget class="QPushButton" name="StreamAreaSteepestButton">
+      <property name="text">
+       <string>StreamArea Steepest</string>
+      </property>
+     </widget>
+    </item>
+    <item alignment="Qt::AlignLeft">
+     <widget class="QPushButton" name="StreamAreaD8_Button">
+      <property name="text">
+       <string>StreamArea D8</string>
+      </property>
+     </widget>
+    </item>
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <widget class="QWidget" name="image_display">
@@ -60,7 +74,7 @@
      <x>0</x>
      <y>0</y>
      <width>1400</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -140,6 +154,11 @@
    </property>
    <property name="shortcut">
     <string>Alt+F4</string>
+   </property>
+  </action>
+  <action name="action_StreamAreaD8">
+   <property name="text">
+    <string>StreamAreaD8</string>
    </property>
   </action>
  </widget>

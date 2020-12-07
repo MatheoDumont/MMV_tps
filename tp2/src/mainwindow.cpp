@@ -26,9 +26,9 @@ void MainWindow::on_boundsSpecified()
 {
     double min, max;
     bd.getDoubles(min, max);
-    
+
     if (min > max)
-      return;
+        return;
 
     ui->statusbar->showMessage("Loading: \"" + filename + "\"", 1000);
     image = QImage(filename);
@@ -46,7 +46,7 @@ void MainWindow::on_boundsSpecified()
 void MainWindow::on_actionOpen_image_triggered()
 {
     filename = QFileDialog::getOpenFileName(this, "Open an height image", QDir::currentPath(), filter);
-    
+
     if (!filename.isEmpty())
         bd.exec();
 }
@@ -57,7 +57,7 @@ void MainWindow::on_actionSave_image_triggered()
     {
         QString outfile = QFileDialog::getSaveFileName(this, "Save the height image", QDir::currentPath());
         if (!outfile.isEmpty())
-          image.save(outfile);
+            image.save(outfile);
     }
 }
 
@@ -74,4 +74,18 @@ void MainWindow::on_actionImage_view_triggered()
 void MainWindow::on_action3D_model_triggered()
 {
     ui->stackedWidget->setCurrentWidget(ui->opengl_display);
+}
+
+void MainWindow::on_action_StreamAreaD8_triggered()
+{
+    SF sf = hf.drainage(0);
+    std::cout << "dedans "<< std::endl;
+
+    HeightField drain(sf);
+    QPixmap res = QPixmap::fromImage(drain.grayscale());
+    int w = ui->image_viewer->width();
+    int h = ui->image_viewer->height();
+    ui->image_viewer->setPixmap(res.scaled(w, h, Qt::KeepAspectRatio));
+
+    ui->actionSave_image->setEnabled(true);
 }

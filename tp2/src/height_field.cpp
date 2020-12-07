@@ -15,7 +15,7 @@ HeightField::HeightField(const QImage &image, const Box2D &box,
 
     // Pas besoin de delta_x et delta_y parce que la Grid est initialisé avec
     // les dimensions de l'image
-    
+
     QImage grayscale;
     if (image.isGrayscale() != true)
         grayscale = image.convertToFormat(QImage::Format_Grayscale8);
@@ -80,7 +80,7 @@ vec3 HeightField::normal(int i, int j) const
 QImage HeightField::grayscale() const
 {
     QImage image(nx, ny, QImage::Format_Grayscale8);
-    
+
     // https://en.cppreference.com/w/cpp/algorithm/minmax_element
     const auto pair = std::minmax_element(field.begin(), field.end());
     const auto min = pair.first;
@@ -155,24 +155,94 @@ std::vector<Point> HeightField::getPoints() const
 {
     std::vector<Point> points;
     for (int i = 0; i < nx; i++)
-      for (int j = 0; j < ny; ++j)
-          points.push_back(Point(i, j, height(i, j)));
+        for (int j = 0; j < ny; ++j)
+            points.push_back(Point(i, j, height(i, j)));
 
     return points;
 }
+std::pair<int, int> next[8] = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
+const float sqrt_2 = 1.41421356237;
+float distance[8] = {1., sqrt_2, 1., sqrt_2, 1., sqrt_2, 1., sqrt_2};
 
-SF HeightField::drainage() const
+StreamAreaCell HeightField::D8(const Point &p) const
 {
-    std::vector<Point> points = getPoints();
-    std::sort(points.begin(), points.end());
-    // On va se casser les dents dessus
-    // pro tips : on attend la correction +1
-    // calcul le drainage, algorithme de calcul d'aire de je sais pas quoi (pas sur)
-    // le drainage :
+    struct StreamAreaCell cell;
+    for (int k = 0; k < 8; ++k)
+    {
+        int i = p.i + next[k].first;
+        int j = p.j + next[k].second;
+
+        if (inside(i, j))
+        {
+            double diff_height = p.height - height(i, j);
+            if (diff_height > 0.0)
+            {
+                cell.slopes[cell.n] = diff_height / distance[k];
+                cell.sum_slope += cell.slopes[cell.n];
+                cell.points[cell.n] = Point(i, j);
+                cell.n++;
+            }
+        }
+    }
+    return cell;
+}
+
+int argmax(double d1, double d2) { return d1 > d2 ? 0 : 1; }
+
+StreamAreaCell HeightField::steepest(const Point &p) const
+{
+    struct StreamAreaCell cell;
+    double max_slope = -1000.0;
+    Point max_point;
+    bool creux = true;
+    for (int k = 0; k < 8; ++k)
+    {
+        int i = p.i + next[k].first;
+        int j = p.j + next[k].second;
+
+        if (inside(i, j))
+        {
+            double diff_height = p.height - height(i, j);
+            if (diff_height > 0.0)
+            {
+                creux = false;
+                double slope = diff_height / distance[k];
+                if (argmax(max_slope, slope) == 1)
+                {
+                    max_slope = slope;
+                    max_point = Point(i, j);
+                }
+            }
+        }
+    }
+
+    if (creux)
+    {
+        cell.n = 0;
+        return cell;
+    }
+
+    cell.points[0] = max_point;
+    cell.slopes[0] = max_slope;
+    cell.sum_slope = max_slope;
+    cell.n = 1;
+    return cell;
+}
+
+SF HeightField::drainage(int function) const
+{
     // 3 etapes :
     // 1. trier tous les points Pij selon Zij, leurs hauteur -> tableau T (trié)
     //      trie => std::sort (il faut une structure pour le faire selon z)
+    std::vector<Point> points = getPoints();
+    std::sort(points.begin(), points.end());
+
     // 2. initialiser un SF a (aire de drainage) de la taile qui va bien (nx, ny) avec 1.0 dedans pour chaque point.
+    SF sf = SF(Grid(Box2D(a, b), nx, ny));
+    for (int i = 0; i < nx; ++i)
+        for (int j = 0; j < ny; ++j)
+            sf.at(i, j) = 1.0;
+
     // 3. pour tous les points de T dans l'ordre descendant (du plus haut au plus bas)
     // -> modifier la valeur de drainage comme :
     //      Point Qij = valeur
@@ -187,12 +257,29 @@ SF HeightField::drainage() const
     //        * 2 algo a voir : le steepest et l'algo D8
     //              steapest (100% du déversement à la cellule la plus basse, ie. ayant la plus forte pente)
     //              D8 (on lance un dé à 8 faces) X)
-    // Mais si on laisse l'eau dans les Qij et dans Qi`j`, on aura des valeurs partout moyenne et des grandes valeurs dans les trous
-    // em plus, ca veut dire qu'on cree de l'eau
+    if (function == 0)
+    {
+        for (Point p : points)
+        {
+            StreamAreaCell cell = D8(p);
 
-    return SF(Grid(Box2D(a, b), nx, ny)); // pour compiler
+            for (int i = 0; i < cell.n; ++i)
+                sf.at(cell.points[i].i, cell.points[i].j) = sf.at(p.i, p.j) * (cell.slopes[i] / cell.sum_slope);
+        }
+    }
+    else if (function == 1)
+    {
+        for (Point p : points)
+        {
+            StreamAreaCell cell = steepest(p);
+
+            for (int i = 0; i < cell.n; ++i)
+                sf.at(cell.points[i].i, cell.points[i].j) = sf.at(p.i, p.j) * (cell.slopes[i] / cell.sum_slope);
+        }
+    }
+
+    return sf; // pour compiler
 }
-
 
 /**
  * Code du prof pour qu'on ait la logique

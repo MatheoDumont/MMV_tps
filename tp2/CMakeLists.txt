@@ -27,11 +27,11 @@ file(COPY "data" DESTINATION ${PROJECT_BINARY_DIR})
 file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 file(GLOB UI_FILES "${PROJECT_SOURCE_DIR}/src/*.ui")
 
-qt_wrap_cpp(
+qt5_wrap_cpp(
   SOURCES
 )
 
-qt_wrap_ui(
+qt5_wrap_ui(
   "${UI_FILES}"
   SOURCES
 )
