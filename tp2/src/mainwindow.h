@@ -32,8 +32,7 @@ private slots:
     void on_actionImage_view_triggered();
     void on_action3D_model_triggered();
 
-
-    void on_action_StreamAreaD8_triggered();
+    void on_StreamAreaD8_Button_clicked();
 
 private:
     Ui::MainWindow *ui;

@@ -156,11 +156,6 @@
     <string>Alt+F4</string>
    </property>
   </action>
-  <action name="action_StreamAreaD8">
-   <property name="text">
-    <string>StreamAreaD8</string>
-   </property>
-  </action>
  </widget>
  <resources/>
  <connections/>

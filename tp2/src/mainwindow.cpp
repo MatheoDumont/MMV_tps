@@ -76,7 +76,8 @@ void MainWindow::on_action3D_model_triggered()
     ui->stackedWidget->setCurrentWidget(ui->opengl_display);
 }
 
-void MainWindow::on_action_StreamAreaD8_triggered()
+
+void MainWindow::on_StreamAreaD8_Button_clicked()
 {
     SF sf = hf.drainage(0);
     std::cout << "dedans "<< std::endl;
