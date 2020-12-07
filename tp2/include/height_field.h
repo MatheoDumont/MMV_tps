@@ -7,16 +7,32 @@
 #include <QImage>
 #include <QVector3D>
 
-struct Point {
+struct Point
+{
     int i, j;
     double height;
 
+    Point() {}
+    Point(int _i, int _j) : i(_i), j(_j), height(0.0) {}
     Point(int _i, int _j, double _height) : i(_i), j(_j), height(_height) {}
 
     bool operator<(const Point &p) const
     {
         return height < p.height;
     }
+};
+
+struct StreamAreaCell
+{
+    Point points[8];
+    // slope[i] point i
+    float slopes[8];
+    // sum(slopes);
+    float sum_slope = 0.f;
+    // nb of object in each array
+    int n = 0;
+
+    StreamAreaCell() {}
 };
 
 class HeightField : public SF
@@ -26,7 +42,7 @@ public :
     double maxHeight;
     
     HeightField();
-    HeightField(const SF& s);
+    HeightField(const SF &s);
     HeightField(const QImage &image, const Box2D &box, double boundmin, double boundmax);
     
     double height(int i, int j) const;
@@ -49,7 +65,16 @@ public :
                  std::vector<QVector3D>& colors,
                  std::vector<QVector3D>& normals) const;
     
-    SF drainage() const;
+    StreamAreaCell D8(const Point &p) const;
+    StreamAreaCell steepest(const Point &p) const;
+
+    /*
+     * StreamArea
+     * int function, heuristique pour la selection de voisin vers qui l'eau coule :
+     * 0 : D8, l'eau coule de facon pondere en fonction des pentes
+     * 1 : steepest, l'eau coule a 100% vers le plus bas
+     */
+    SF drainage(int function) const;
 };
 
 #endif
