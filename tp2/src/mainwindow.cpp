@@ -76,11 +76,22 @@ void MainWindow::on_action3D_model_triggered()
     ui->stackedWidget->setCurrentWidget(ui->opengl_display);
 }
 
-
 void MainWindow::on_StreamAreaD8_Button_clicked()
 {
     SF sf = hf.drainage(0);
-    std::cout << "dedans "<< std::endl;
+
+    HeightField drain(sf);
+    QPixmap res = QPixmap::fromImage(drain.grayscale());
+    int w = ui->image_viewer->width();
+    int h = ui->image_viewer->height();
+    ui->image_viewer->setPixmap(res.scaled(w, h, Qt::KeepAspectRatio));
+
+    ui->actionSave_image->setEnabled(true);
+}
+
+void MainWindow::on_StreamAreaSteepestButton_clicked()
+{
+    SF sf = hf.drainage(1);
 
     HeightField drain(sf);
     QPixmap res = QPixmap::fromImage(drain.grayscale());

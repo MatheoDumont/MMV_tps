@@ -34,6 +34,8 @@ private slots:
 
     void on_StreamAreaD8_Button_clicked();
 
+    void on_StreamAreaSteepestButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 

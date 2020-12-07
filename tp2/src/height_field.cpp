@@ -264,7 +264,7 @@ SF HeightField::drainage(int function) const
             StreamAreaCell cell = D8(p);
 
             for (int i = 0; i < cell.n; ++i)
-                sf.at(cell.points[i].i, cell.points[i].j) = sf.at(p.i, p.j) * (cell.slopes[i] / cell.sum_slope);
+                sf.at(cell.points[i].i, cell.points[i].j) += sf.at(p.i, p.j) * (cell.slopes[i] / cell.sum_slope);
         }
     }
     else if (function == 1)
@@ -274,7 +274,7 @@ SF HeightField::drainage(int function) const
             StreamAreaCell cell = steepest(p);
 
             for (int i = 0; i < cell.n; ++i)
-                sf.at(cell.points[i].i, cell.points[i].j) = sf.at(p.i, p.j) * (cell.slopes[i] / cell.sum_slope);
+                sf.at(cell.points[i].i, cell.points[i].j) += sf.at(p.i, p.j) * (cell.slopes[i] / cell.sum_slope);
         }
     }
 
