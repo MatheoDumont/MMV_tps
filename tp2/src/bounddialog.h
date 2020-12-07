@@ -15,7 +15,7 @@ public:
     explicit BoundDialog(QWidget *parent = nullptr);
     ~BoundDialog();
 
-    void getDoubles(double &min, double &max) const;
+    void getDoubles(double &min, double &max, double &boxsize) const;
     QList<double> getDoubles() const;
     
 private:

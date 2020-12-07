@@ -24,15 +24,15 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_boundsSpecified()
 {
-    double min, max;
-    bd.getDoubles(min, max);
+    double min, max, boxsize;
+    bd.getDoubles(min, max, boxsize);
     
     if (min > max)
       return;
 
-    ui->statusbar->showMessage("Loading: \"" + filename + "\"", 1000);
+    ui->statusbar->showMessage("Loading: \"" + filename + "\"", 1500);
     image = QImage(filename);
-    Box2D box(vec2(0.0, 0.0), vec2(image.width(), image.height()));
+    Box2D box(vec2(0.0), vec2(boxsize));
     hf = HeightField(image, box, min, max);
 
     QPixmap res = QPixmap::fromImage(hf.grayscale());
@@ -41,6 +41,14 @@ void MainWindow::on_boundsSpecified()
     ui->image_viewer->setPixmap(res.scaled(w, h, Qt::KeepAspectRatio));
 
     ui->actionSave_image->setEnabled(true);
+    ui->action3D_model->setEnabled(true);
+
+    // Création du mesh
+    hf.getMesh(ui->openGL_viewer->vertices,
+               ui->openGL_viewer->colors,
+               ui->openGL_viewer->normals);
+
+    ui->openGL_viewer->maxHeight = hf.maxHeight;
 }
 
 void MainWindow::on_actionOpen_image_triggered()
@@ -63,15 +71,17 @@ void MainWindow::on_actionSave_image_triggered()
 
 void MainWindow::on_actionQuit_triggered()
 {
-    QApplication::quit();
+    close();
 }
 
 void MainWindow::on_actionImage_view_triggered()
 {
     ui->stackedWidget->setCurrentWidget(ui->image_display);
+    ui->openGL_viewer->setIsDisplayed(false);
 }
 
 void MainWindow::on_action3D_model_triggered()
 {
     ui->stackedWidget->setCurrentWidget(ui->opengl_display);
+    ui->openGL_viewer->setIsDisplayed(true);
 }

@@ -8,7 +8,7 @@ HeightField::HeightField() : SF() {}
 HeightField::HeightField(const SF &s) : SF(s) {}
 HeightField::HeightField(const QImage &image, const Box2D &box,
                          double boundmin, double boundmax)
-    : SF(Grid(box, image.width(), image.height()))
+    : SF(Grid(box, image.width(), image.height())), minHeight(boundmin), maxHeight(boundmax)
 {
     // Interpoler linéaire entre les 2 z (bound min et max correspondent respectivement
     // a la couleur min et la couleur max(blanc et noir))
@@ -23,8 +23,8 @@ HeightField::HeightField(const QImage &image, const Box2D &box,
         grayscale = image;
 
     // Bon bah je sens qu'on va pas pouvoir être plus précis qu'un int [0, 255] ... :/
-    for (int i = 0; i < image.height(); ++i)
-        for (int j = 0; j < image.width(); ++j)
+    for (int i = 0; i < image.width(); ++i)
+        for (int j = 0; j < image.height(); ++j)
             field[index(i, j)] = normalization(qGray(grayscale.pixel(i, j)),
                                                0.0, 255.0,
                                                boundmin, boundmax);
@@ -159,6 +159,62 @@ std::vector<Point> HeightField::getPoints() const
           points.push_back(Point(i, j, height(i, j)));
 
     return points;
+}
+
+void HeightField::getMesh(std::vector<QVector3D>& vertices,
+                          std::vector<QVector3D>& colors,
+                          std::vector<QVector3D>& normals) const
+{
+    int i, j;
+    vec3 v0, v1, v2, v3;
+    
+    for (i = 0; i < nx - 1; ++i)
+        for (j = 0; j < ny - 1; ++j)
+        {
+            // Vertices
+            v0 = vertex(i, j);
+            v1 = vertex(i + 1, j);
+            v2 = vertex(i + 1, j + 1);
+            v3 = vertex(i, j + 1);
+            
+            vertices.emplace_back(v0.x, v0.y, v0.z);
+            vertices.emplace_back(v1.x, v1.y, v1.z);
+            vertices.emplace_back(v2.x, v2.y, v2.z);
+
+            vertices.emplace_back(v0.x, v0.y, v0.z);            
+            vertices.emplace_back(v2.x, v2.y, v2.z);
+            vertices.emplace_back(v3.x, v3.y, v3.z);
+
+            
+            // Colors
+            v0 = vec3(normalization(height(i, j), minHeight, maxHeight, 0.0, 1.0));
+            v1 = vec3(normalization(height(i + 1, j), minHeight, maxHeight, 0.0, 1.0));
+            v2 = vec3(normalization(height(i + 1, j + 1), minHeight, maxHeight, 0.0, 1.0));
+            v3 = vec3(normalization(height(i, j + 1), minHeight, maxHeight, 0.0, 1.0));
+            
+            colors.emplace_back(v0.x, v0.y, v0.z);
+            colors.emplace_back(v1.x, v1.y, v1.z);
+            colors.emplace_back(v2.x, v2.y, v2.z);
+
+            colors.emplace_back(v0.x, v0.y, v0.z);            
+            colors.emplace_back(v2.x, v2.y, v2.z);
+            colors.emplace_back(v3.x, v3.y, v3.z);
+
+            
+            // Normals
+            v0 = normal(i, j);
+            v1 = normal(i + 1, j);
+            v2 = normal(i + 1, j + 1);
+            v3 = normal(i, j + 1);
+
+            normals.emplace_back(v0.x, v0.y, v0.z);
+            normals.emplace_back(v1.x, v1.y, v1.z);
+            normals.emplace_back(v2.x, v2.y, v2.z);
+
+            normals.emplace_back(v0.x, v0.y, v0.z);            
+            normals.emplace_back(v2.x, v2.y, v2.z);
+            normals.emplace_back(v3.x, v3.y, v3.z);
+        }
 }
 
 SF HeightField::drainage() const

@@ -13,10 +13,11 @@ BoundDialog::~BoundDialog()
     delete ui;
 }
 
-void BoundDialog::getDoubles(double &min, double &max) const
+void BoundDialog::getDoubles(double &min, double &max, double &boxsize) const
 {
     min = ui->boundmin_val->value();
     max = ui->boundmax_val->value();
+    boxsize = ui->boxsize_val->value();
 }
 
 QList<double> BoundDialog::getDoubles() const
@@ -25,6 +26,7 @@ QList<double> BoundDialog::getDoubles() const
 
     doubles.append(ui->boundmin_val->value());
     doubles.append(ui->boundmax_val->value());
+    doubles.append(ui->boxsize_val->value());
 
     return doubles;
 }

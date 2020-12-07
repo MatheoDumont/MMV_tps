@@ -39,12 +39,15 @@
       <widget class="QWidget" name="opengl_display">
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
-         <widget class="QOpenGLWidget" name="openGL_viewer">
+         <widget class="DisplayGLWidget" name="openGL_viewer">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="mouseTracking">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -143,6 +146,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DisplayGLWidget</class>
+   <extends>QOpenGLWidget</extends>
+   <header>displayglwidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

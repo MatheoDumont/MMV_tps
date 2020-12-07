@@ -2,6 +2,7 @@
 #define VEC_H
 
 #include <iostream>
+#include <QVector3D>
 
 struct vec2
 {
@@ -28,7 +29,12 @@ struct vec3
     vec3(double _x, double _y, double _z);
     vec3(const vec3& v);
     vec3(const vec2& v, double _z);
+    vec3(const QVector3D& qv);
 
+    double r() const;
+    double g() const;
+    double b() const;
+    
     double length() const;
     vec3 normalize() const;
 

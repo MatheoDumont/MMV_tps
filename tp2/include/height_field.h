@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <QImage>
+#include <QVector3D>
 
 struct Point {
     int i, j;
@@ -21,10 +22,13 @@ struct Point {
 class HeightField : public SF
 {
 public :
+    double minHeight;
+    double maxHeight;
+    
     HeightField();
     HeightField(const SF& s);
     HeightField(const QImage &image, const Box2D &box, double boundmin, double boundmax);
-
+    
     double height(int i, int j) const;
     double slope(int i, int j) const;
     double averageSlope(int i, int j) const;
@@ -40,6 +44,11 @@ public :
     SF laplacianMap() const;
 
     std::vector<Point> getPoints() const;
+    
+    void getMesh(std::vector<QVector3D>& vertices,
+                 std::vector<QVector3D>& colors,
+                 std::vector<QVector3D>& normals) const;
+    
     SF drainage() const;
 };
 
