@@ -23,6 +23,11 @@ DisplayGLWidget::~DisplayGLWidget()
     doneCurrent();
 }
 
+bool DisplayGLWidget::getIsDisplayed()
+{
+    return isDisplayed;
+}
+
 void DisplayGLWidget::setIsDisplayed(bool b)
 {
     isDisplayed = b;
@@ -33,11 +38,11 @@ void DisplayGLWidget::initializeGL()
     size_t size, offset;
     bool success;
     QString app_dir = QCoreApplication::applicationDirPath();
-    
+
     initializeOpenGLFunctions();
-    
+
     m_program.create();
-    
+
     success = m_program.addShaderFromSourceFile(QOpenGLShader::Vertex,
                                                 app_dir + "/shaders/base.vs.glsl");
 
@@ -45,7 +50,6 @@ void DisplayGLWidget::initializeGL()
         std::cerr << "Error with the vertex shader...\n"
                   << m_program.log().toStdString() << std::endl;
 
-    
     success = m_program.addShaderFromSourceFile(QOpenGLShader::Fragment,
                                                 app_dir + "/shaders/base.fs.glsl");
 
@@ -56,7 +60,7 @@ void DisplayGLWidget::initializeGL()
     success = m_program.link();
     if (success == false)
         std::cerr << "Error while linking shaders...\n"
-                  << m_program.log().toStdString() << std::endl; 
+                  << m_program.log().toStdString() << std::endl;
 
     m_vao.create();
     m_vao.bind();
@@ -77,7 +81,7 @@ void DisplayGLWidget::initializeGL()
     glVertexAttribPointer(0,
                           3, GL_FLOAT,
                           GL_FALSE,
-                          0, (const GLvoid*) offset);
+                          0, (const GLvoid *)offset);
     m_program.enableAttributeArray(0);
 
     // Colors
@@ -87,7 +91,7 @@ void DisplayGLWidget::initializeGL()
     glVertexAttribPointer(1,
                           3, GL_FLOAT,
                           GL_FALSE,
-                          0, (const GLvoid*) offset);
+                          0, (const GLvoid *)offset);
     m_program.enableAttributeArray(1);
 
     // Normals
@@ -97,21 +101,20 @@ void DisplayGLWidget::initializeGL()
     glVertexAttribPointer(2,
                           3, GL_FLOAT,
                           GL_FALSE,
-                          0, (const GLvoid*) offset);
+                          0, (const GLvoid *)offset);
     m_program.enableAttributeArray(2);
 
-    
     m_vbo.release();
     m_vao.release();
 
     m_program.release();
-    
+
     glClearColor(clearColor.r(), clearColor.g(), clearColor.b(), 1.0);
-    
+
     glClearDepth(1.f);
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
-    
+
     // glCullFace(GL_BACK);
     // glEnable(GL_CULL_FACE);
 }
@@ -125,12 +128,12 @@ void DisplayGLWidget::paintGL()
 {
     if (isDisplayed == false)
         return;
-    
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+
     m_program.bind();
     m_vao.bind();
-    
+
     QMatrix4x4 mvp;
 
     vec3 pmin, pmax, middle;
@@ -138,14 +141,14 @@ void DisplayGLWidget::paintGL()
     pmax = vertices[vertices.size() - 2];
 
     std::cout << pmin << " | " << pmax << std::endl;
-    
+
     middle = (pmin + pmax) / 2.0;
 
     std::cout << middle << std::endl;
 
     // View
     QMatrix4x4 view;
-    
+
     // Magie pour être à un endroit sympa
     view.lookAt(QVector3D(middle.x, middle.y + maxHeight, -middle.z),
                 QVector3D(middle.x, middle.y, middle.z),
@@ -155,13 +158,49 @@ void DisplayGLWidget::paintGL()
     QMatrix4x4 proj;
     proj.perspective(45.f, (float(width()) / float(height())), 0.1f, pmax.x + middle.x);
 
-    
     mvp = proj * view;
-    
+
     m_program.setUniformValue("u_mvp", mvp);
 
     glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-        
+
     m_vao.release();
     m_program.release();
+}
+
+void DisplayGLWidget::updateColorBuffer(/*std::vector<QVector3D> colors*/)
+{
+
+    // this->colors.clear();
+    // this->colors = colors;
+
+    m_vao.bind();
+    m_vbo.bind();
+    // m_program.link();
+
+    // Colors
+    int offset = getVerticesSize();
+    int size = getColorsSize();
+    m_vbo.write(offset, colors.data(), size);
+    // glVertexAttribPointer(1,
+    //                       3, GL_FLOAT,
+    //                       GL_FALSE,
+    //                       0, (const GLvoid *)offset);
+    // m_program.enableAttributeArray(2);
+
+    // m_program.release();
+    m_vao.release();
+    m_vbo.release();
+}
+
+void DisplayGLWidget::updateMeshColor(HeightField hf)
+{
+    // std::vector<QVector3D> colors(hf.getNX() * hf.getNY() * 2);
+    this->colors.clear();
+
+    for (int i = 0; i < hf.getNX(); ++i)
+        for (int j = 0; j < hf.getNY(); ++j)
+            hf.colorCell(i, j, this->colors);
+
+    updateColorBuffer();
 }

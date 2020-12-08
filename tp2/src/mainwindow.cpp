@@ -86,28 +86,31 @@ void MainWindow::on_action3D_model_triggered()
     ui->openGL_viewer->setIsDisplayed(true);
 }
 
+void MainWindow::on_StreamArea(int func)
+{
+    SF sf = hf.drainage(func);
+    HeightField drain(sf);
+
+    if (ui->openGL_viewer->getIsDisplayed())
+    {
+        std::cout << "OSKOUR" << std::endl;
+        ui->openGL_viewer->updateMeshColor(drain);
+        ui->openGL_viewer->paintGL();
+    }
+    else
+    {
+        QPixmap res = QPixmap::fromImage(drain.grayscale());
+        int w = ui->image_viewer->width();
+        int h = ui->image_viewer->height();
+        ui->image_viewer->setPixmap(res.scaled(w, h, Qt::KeepAspectRatio));
+    }
+}
 void MainWindow::on_StreamAreaD8_Button_clicked()
 {
-    SF sf = hf.drainage(0);
-
-    HeightField drain(sf);
-    QPixmap res = QPixmap::fromImage(drain.grayscale());
-    int w = ui->image_viewer->width();
-    int h = ui->image_viewer->height();
-    ui->image_viewer->setPixmap(res.scaled(w, h, Qt::KeepAspectRatio));
-
-    ui->actionSave_image->setEnabled(true);
+    on_StreamArea(0);
 }
 
 void MainWindow::on_StreamAreaSteepestButton_clicked()
 {
-    SF sf = hf.drainage(1);
-
-    HeightField drain(sf);
-    QPixmap res = QPixmap::fromImage(drain.grayscale());
-    int w = ui->image_viewer->width();
-    int h = ui->image_viewer->height();
-    ui->image_viewer->setPixmap(res.scaled(w, h, Qt::KeepAspectRatio));
-
-    ui->actionSave_image->setEnabled(true);
+    on_StreamArea(1);
 }

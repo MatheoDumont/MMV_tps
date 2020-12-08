@@ -37,14 +37,14 @@ struct StreamAreaCell
 
 class HeightField : public SF
 {
-public :
+public:
     double minHeight;
     double maxHeight;
-    
+
     HeightField();
     HeightField(const SF &s);
     HeightField(const QImage &image, const Box2D &box, double boundmin, double boundmax);
-    
+
     double height(int i, int j) const;
     double slope(int i, int j) const;
     double averageSlope(int i, int j) const;
@@ -59,12 +59,17 @@ public :
     SF slopeMap() const;
     SF laplacianMap() const;
 
+    /*
+     * Couleur du triangle courant construitent, necessaire pour mettre a jour 
+     * le vbo et comme tonton titi dit : "pas de copier/coller, c'est haram."
+     */
+    void colorCell(int i, int j, std::vector<QVector3D> &colors) const;
+    void getMesh(std::vector<QVector3D> &vertices,
+                 std::vector<QVector3D> &colors,
+                 std::vector<QVector3D> &normals) const;
+
     std::vector<Point> getPoints() const;
-    
-    void getMesh(std::vector<QVector3D>& vertices,
-                 std::vector<QVector3D>& colors,
-                 std::vector<QVector3D>& normals) const;
-    
+
     StreamAreaCell D8(const Point &p) const;
     StreamAreaCell steepest(const Point &p) const;
 

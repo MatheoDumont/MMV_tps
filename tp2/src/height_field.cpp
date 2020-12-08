@@ -151,23 +151,30 @@ SF HeightField::laplacianMap() const
     return s;
 }
 
-std::vector<Point> HeightField::getPoints() const
+void HeightField::colorCell(int i, int j, std::vector<QVector3D> &colors) const
 {
-    std::vector<Point> points;
-    for (int i = 0; i < nx; i++)
-        for (int j = 0; j < ny; ++j)
-            points.push_back(Point(i, j, height(i, j)));
+    vec3 v0, v1, v2, v3;
+    v0 = vec3(normalization(height(i, j), minHeight, maxHeight, 0.0, 1.0));
+    v1 = vec3(normalization(height(i + 1, j), minHeight, maxHeight, 0.0, 1.0));
+    v2 = vec3(normalization(height(i + 1, j + 1), minHeight, maxHeight, 0.0, 1.0));
+    v3 = vec3(normalization(height(i, j + 1), minHeight, maxHeight, 0.0, 1.0));
 
-    return points;
+    colors.emplace_back(v0.x, v0.y, v0.z);
+    colors.emplace_back(v1.x, v1.y, v1.z);
+    colors.emplace_back(v2.x, v2.y, v2.z);
+
+    colors.emplace_back(v0.x, v0.y, v0.z);
+    colors.emplace_back(v2.x, v2.y, v2.z);
+    colors.emplace_back(v3.x, v3.y, v3.z);
 }
 
-void HeightField::getMesh(std::vector<QVector3D>& vertices,
-                          std::vector<QVector3D>& colors,
-                          std::vector<QVector3D>& normals) const
+void HeightField::getMesh(std::vector<QVector3D> &vertices,
+                          std::vector<QVector3D> &colors,
+                          std::vector<QVector3D> &normals) const
 {
     int i, j;
     vec3 v0, v1, v2, v3;
-    
+
     for (i = 0; i < nx - 1; ++i)
         for (j = 0; j < ny - 1; ++j)
         {
@@ -176,31 +183,18 @@ void HeightField::getMesh(std::vector<QVector3D>& vertices,
             v1 = vertex(i + 1, j);
             v2 = vertex(i + 1, j + 1);
             v3 = vertex(i, j + 1);
-            
+
             vertices.emplace_back(v0.x, v0.y, v0.z);
             vertices.emplace_back(v1.x, v1.y, v1.z);
             vertices.emplace_back(v2.x, v2.y, v2.z);
 
-            vertices.emplace_back(v0.x, v0.y, v0.z);            
+            vertices.emplace_back(v0.x, v0.y, v0.z);
             vertices.emplace_back(v2.x, v2.y, v2.z);
             vertices.emplace_back(v3.x, v3.y, v3.z);
 
-            
             // Colors
-            v0 = vec3(normalization(height(i, j), minHeight, maxHeight, 0.0, 1.0));
-            v1 = vec3(normalization(height(i + 1, j), minHeight, maxHeight, 0.0, 1.0));
-            v2 = vec3(normalization(height(i + 1, j + 1), minHeight, maxHeight, 0.0, 1.0));
-            v3 = vec3(normalization(height(i, j + 1), minHeight, maxHeight, 0.0, 1.0));
-            
-            colors.emplace_back(v0.x, v0.y, v0.z);
-            colors.emplace_back(v1.x, v1.y, v1.z);
-            colors.emplace_back(v2.x, v2.y, v2.z);
+            this->colorCell(i, j, colors);
 
-            colors.emplace_back(v0.x, v0.y, v0.z);            
-            colors.emplace_back(v2.x, v2.y, v2.z);
-            colors.emplace_back(v3.x, v3.y, v3.z);
-
-            
             // Normals
             v0 = normal(i, j);
             v1 = normal(i + 1, j);
@@ -211,10 +205,20 @@ void HeightField::getMesh(std::vector<QVector3D>& vertices,
             normals.emplace_back(v1.x, v1.y, v1.z);
             normals.emplace_back(v2.x, v2.y, v2.z);
 
-            normals.emplace_back(v0.x, v0.y, v0.z);            
+            normals.emplace_back(v0.x, v0.y, v0.z);
             normals.emplace_back(v2.x, v2.y, v2.z);
             normals.emplace_back(v3.x, v3.y, v3.z);
         }
+}
+
+std::vector<Point> HeightField::getPoints() const
+{
+    std::vector<Point> points;
+    for (int i = 0; i < nx; i++)
+        for (int j = 0; j < ny; ++j)
+            points.push_back(Point(i, j, height(i, j)));
+
+    return points;
 }
 
 std::pair<int, int> next[8] = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
