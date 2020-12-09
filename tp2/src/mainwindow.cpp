@@ -89,7 +89,7 @@ void MainWindow::on_action3D_model_triggered()
 void MainWindow::on_StreamArea(int func)
 {
     SF sf = hf_base.drainage(func);
-    hf_transforme(sf);
+    hf_transforme = HeightField(sf);
 
     if (ui->openGL_viewer->getIsDisplayed())
     {
