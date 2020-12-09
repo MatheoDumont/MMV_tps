@@ -166,6 +166,7 @@ void DisplayGLWidget::paintGL()
 
     m_vao.release();
     m_program.release();
+    update();
 }
 
 void DisplayGLWidget::updateColorBuffer(/*std::vector<QVector3D> colors*/)
@@ -181,12 +182,13 @@ void DisplayGLWidget::updateColorBuffer(/*std::vector<QVector3D> colors*/)
     // Colors
     int offset = getVerticesSize();
     int size = getColorsSize();
-    m_vbo.write(offset, colors.data(), size);
-    // glVertexAttribPointer(1,
-    //                       3, GL_FLOAT,
-    //                       GL_FALSE,
-    //                       0, (const GLvoid *)offset);
-    // m_program.enableAttributeArray(2);
+    // m_vbo.write(offset, colors.data(), size);
+    glBufferSubData(GL_ARRAY_BUFFER, offset, size, colors.data());
+    glVertexAttribPointer(1,
+                          3, GL_FLOAT,
+                          GL_FALSE,
+                          0, (const GLvoid *)offset);
+    // m_program.enableAttributeArray(1);
 
     // m_program.release();
     m_vao.release();

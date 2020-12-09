@@ -45,7 +45,8 @@ private:
     QString filter = "Image (*.jpe *.jpg *.jpeg *.png *.tif *.tiff *.raw)";
     QImage image;
 
-    HeightField hf;
+    HeightField hf_base;
+    HeightField hf_transforme;
 };
 
 #endif // MAINWINDOW_H

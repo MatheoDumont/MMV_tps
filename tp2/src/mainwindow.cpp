@@ -33,9 +33,9 @@ void MainWindow::on_boundsSpecified()
     ui->statusbar->showMessage("Loading: \"" + filename + "\"", 1500);
     image = QImage(filename);
     Box2D box(vec2(0.0), vec2(boxsize));
-    hf = HeightField(image, box, min, max);
+    hf_base = HeightField(image, box, min, max);
 
-    QPixmap res = QPixmap::fromImage(hf.grayscale());
+    QPixmap res = QPixmap::fromImage(hf_base.grayscale());
     int w = ui->image_viewer->width();
     int h = ui->image_viewer->height();
     ui->image_viewer->setPixmap(res.scaled(w, h, Qt::KeepAspectRatio));
@@ -44,11 +44,11 @@ void MainWindow::on_boundsSpecified()
     ui->action3D_model->setEnabled(true);
 
     // Création du mesh
-    hf.getMesh(ui->openGL_viewer->vertices,
-               ui->openGL_viewer->colors,
-               ui->openGL_viewer->normals);
+    hf_base.getMesh(ui->openGL_viewer->vertices,
+                    ui->openGL_viewer->colors,
+                    ui->openGL_viewer->normals);
 
-    ui->openGL_viewer->maxHeight = hf.maxHeight;
+    ui->openGL_viewer->maxHeight = hf_base.maxHeight;
 }
 
 void MainWindow::on_actionOpen_image_triggered()
@@ -88,18 +88,18 @@ void MainWindow::on_action3D_model_triggered()
 
 void MainWindow::on_StreamArea(int func)
 {
-    SF sf = hf.drainage(func);
-    HeightField drain(sf);
+    SF sf = hf_base.drainage(func);
+    HeightField hf_transforme(sf);
 
     if (ui->openGL_viewer->getIsDisplayed())
     {
         std::cout << "OSKOUR" << std::endl;
-        ui->openGL_viewer->updateMeshColor(drain);
+        ui->openGL_viewer->updateMeshColor(hf_transforme);
         ui->openGL_viewer->paintGL();
     }
     else
     {
-        QPixmap res = QPixmap::fromImage(drain.grayscale());
+        QPixmap res = QPixmap::fromImage(hf_transforme.grayscale());
         int w = ui->image_viewer->width();
         int h = ui->image_viewer->height();
         ui->image_viewer->setPixmap(res.scaled(w, h, Qt::KeepAspectRatio));
