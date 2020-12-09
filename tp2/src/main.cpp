@@ -14,6 +14,8 @@
  *     - export exportObj
  *          - *lecture de doc intensifies*
  *     - Shade dans HeightField
+ *     - Rotation dans vue 3D
+ *     - couleurs 
  */
 int main(int argc, char *argv[])
 {

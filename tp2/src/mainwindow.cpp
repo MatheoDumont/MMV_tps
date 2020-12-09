@@ -89,11 +89,10 @@ void MainWindow::on_action3D_model_triggered()
 void MainWindow::on_StreamArea(int func)
 {
     SF sf = hf_base.drainage(func);
-    HeightField hf_transforme(sf);
+    hf_transforme(sf);
 
     if (ui->openGL_viewer->getIsDisplayed())
     {
-        std::cout << "OSKOUR" << std::endl;
         ui->openGL_viewer->updateMeshColor(hf_transforme);
         ui->openGL_viewer->paintGL();
     }
