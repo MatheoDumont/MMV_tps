@@ -97,6 +97,10 @@ QImage HeightField::grayscale() const
     return image;
 }
 
+QImage HeightField::colorHSV(int rangemin, int rangemax) const
+{
+}
+
 QImage HeightField::shade() const
 {
     // TODO: A modifier
@@ -228,6 +232,9 @@ float distance[8] = {1., sqrt_2, 1., sqrt_2, 1., sqrt_2, 1., sqrt_2};
 
 StreamAreaCell HeightField::D8(const Point &p) const
 {
+    // float diag = celldiagonal.length();
+    // float d[8] = {celldiagonal.x, diag, celldiagonal.y, diag, celldiagonal.x, diag, celldiagonal.y, diag};
+
     struct StreamAreaCell cell;
     for (int k = 0; k < 8; ++k)
     {
@@ -363,7 +370,7 @@ SF HeightField::drainage(int function) const
 //         {
 //             point[n] = b;
 //             height[n] = -step;
-//             // length tableau de taille 8 de length des cell dans la 8-adjacence = [1, sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2)]
+//             // lengsteepestth tableau de taille 8 de length des cell dans la 8-adjacence = [1, sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2)]
 //             slope[n] = -step / length[i];
 //             slopesum += slope[n];
 //             n++;

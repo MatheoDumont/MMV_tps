@@ -53,7 +53,9 @@ public:
     vec3 normal(int i, int j) const;
 
     QImage grayscale() const;
+    QImage colorHSV(int rangemin, int rangemax) const;
     QImage shade() const;
+
     void exportObj() const;
 
     SF slopeMap() const;
