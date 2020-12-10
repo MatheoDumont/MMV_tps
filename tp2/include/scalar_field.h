@@ -14,9 +14,10 @@ protected:
 public:
     SF();
     SF(const Grid &g);
+    SF(const SF &sf);
 
     double at(int i, int j) const;
-    double& at(int i, int j);
+    double &at(int i, int j);
 
     /**
      * Dérivée première
@@ -37,13 +38,23 @@ public:
     double laplacian(int i, int j) const;
 
     double normalization(double x, double in_min, double in_max, double out_min, double out_max) const;
-    
+
     /**
      * [in_min, in_max] = [0, 1]
      */
     double normalization(double x, double out_min, double out_max) const;
     double clamp(double min, double max, double x) const;
     vec2 clamp(const vec2 &) const;
+
+    /*
+     * Applique un filtre 2D de taille 3*3 a field.
+     * filter_choice : 
+     * 0 : filtre moyenneur => smooth
+     * 1 : filtre gaussien => blur
+     * Les masques sont hard codes.
+     */
+    void filter(int filter_choice);
+
 };
 
 #endif

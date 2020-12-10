@@ -1,6 +1,7 @@
 #include "scalar_field.h"
 
 SF::SF() : Grid(), field() {}
+SF::SF(const SF &sf) : Grid(Box2D(sf.a, sf.b), sf.nx, sf.ny), field(sf.nx * sf.ny, 0.0) {}
 SF::SF(const Grid &g) : Grid(g), field(nx * ny, 0.0) {}
 
 double SF::at(int i, int j) const
@@ -8,7 +9,7 @@ double SF::at(int i, int j) const
     return field[index(i, j)];
 }
 
-double& SF::at(int i, int j)
+double &SF::at(int i, int j)
 {
     return field[index(i, j)];
 }
@@ -80,4 +81,35 @@ double SF::clamp(double min, double max, double x) const
 vec2 SF::clamp(const vec2 &) const
 {
     return vec2(); // TODO
+}
+
+const double mask_smooth[9] = {0.11111111, 0.11111111, 0.11111111,
+                               0.11111111, 0.11111111, 0.11111111,
+                               0.11111111, 0.11111111, 0.11111111};
+const double mask_blur[9] = {0.05854983, 0.09653235, 0.05854983,
+                             0.09653235, 0.15915494, 0.09653235,
+                             0.05854983, 0.09653235, 0.05854983};
+
+void applyMask(const SF &sf, SF &sf_filtered, int i, int j, const double mask[9])
+{
+    for (int ii = -1; ii < 2; ++ii)
+        for (int jj = -1; jj < 2; ++jj)
+            sf_filtered.at(i + ii, j + jj) = mask[(i + 1) * 3 + (j + 1)] * sf.at(i + ii, j + jj);
+}
+
+void applyFilter(const SF &sf, SF &sf_filtered, const double mask[9])
+{
+    for (int i = 1; i < sf_filtered.getNX() - 1; ++i)
+        for (int j = 1; j < sf_filtered.getNY() - 1; ++j)
+            applyMask(sf, sf_filtered, i, j, mask);
+}
+
+void SF::filter(int filter_choice)
+{
+    SF sf_filtered(*this);
+
+    if (filter_choice == 0)
+        applyFilter(*this, sf_filtered, mask_smooth);
+    else if (filter_choice == 1)
+        applyFilter(*this, sf_filtered, mask_blur);
 }
