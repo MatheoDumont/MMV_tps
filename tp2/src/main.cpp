@@ -7,8 +7,8 @@
 
 /**
  * TODO:
- *     - Faire un affichage sous Qt de l'image (ou directement faire le rendu 3D)
- *          - QApplication avec une QWindow devrait être bon pour du OpenGL
+ *     - Possibilité de charger une nouvelle image après en avoir chargé une
+ *          - update du VBO (+ potentiellement le resize)
  *     - Lissage masque 3*3 et Blur
  *     - Fonction Clamp
  *     - export exportObj
@@ -24,5 +24,4 @@ int main(int argc, char *argv[])
 
     w.show();
     return app.exec();
-
 }
