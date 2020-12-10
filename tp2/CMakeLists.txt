@@ -31,20 +31,24 @@ file(COPY "data" DESTINATION ${PROJECT_BINARY_DIR})
 file(COPY "shaders" DESTINATION ${PROJECT_BINARY_DIR})
 
 file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
-file(GLOB UI_FILES "${PROJECT_SOURCE_DIR}/src/*.ui")
+file(GLOB QT_SOURCES "${PROJECT_SOURCE_DIR}/qtfiles/*.cpp")
+file(GLOB UI_FILES "${PROJECT_SOURCE_DIR}/qtfiles/*.ui")
 
+# https://cmake.org/cmake/help/latest/manual/cmake-qt.7.html#autouic
+# l'ordre est important :
+# il faut preciser les sources en premiers
+# et CMAKE_AUTOUIC ira generer les ui_*.h ne voyant les includes
 qt5_wrap_cpp(
-  SOURCES
+  "${QT_SOURCES}"
 )
-
 qt5_wrap_ui(
   "${UI_FILES}"
-  SOURCES
 )
 
 add_executable(
   ${PROJECT_NAME}
   "${SOURCES}"
+  "${QT_SOURCES}"
 )
 
 add_definitions(${Qt5Widgets_DEFINITONS})
@@ -53,13 +57,14 @@ target_include_directories(${PROJECT_NAME}
   PUBLIC
   "${PROJECT_SOURCE_DIR}/include"
   "${PROJECT_SOURCE_DIR}/src"
-  "${PROJECT_BUILD_DIR}")
+  "${PROJECT_SOURCE_DIR}/qtfiles"
+  "${PROJECT_BUILD_DIR}"
+)
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
   OpenGL::GL
-  
   Qt5::Core
   Qt5::Gui
   Qt5::Widgets
