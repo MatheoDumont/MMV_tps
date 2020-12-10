@@ -191,9 +191,10 @@ void HeightField::getMesh(std::vector<QVector3D> &vertices,
             vertices.emplace_back(v0.x, v0.y, v0.z);
             vertices.emplace_back(v2.x, v2.y, v2.z);
             vertices.emplace_back(v3.x, v3.y, v3.z);
+            
 
             // Colors
-            this->colorCell(i, j, colors);
+            colorCell(i, j, colors);
 
             // Normals
             v0 = normal(i, j);

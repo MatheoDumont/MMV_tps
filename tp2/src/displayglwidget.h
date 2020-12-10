@@ -8,8 +8,12 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
 
+#include <QEvent>
+#include <QMouseEvent>
+
 #include "mainwindow.h"
 #include "vec.h"
+#include "camera.h"
 
 class DisplayGLWidget : public QOpenGLWidget,
                         protected QOpenGLFunctions
@@ -23,18 +27,25 @@ public:
     void setIsDisplayed(bool b);
     bool getIsDisplayed();
 
+    void mousePressEvent(QMouseEvent *ev) override;
+    void mouseReleaseEvent(QMouseEvent *ev) override;
+    void mouseMoveEvent(QMouseEvent *ev) override;
+
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
     void paintGL() override;
-    void updateColorBuffer(/*std::vector<QVector3D>*/);
+
+    void updateColorBuffer();
     void updateMeshColor(HeightField hf);
 
 private:
-    inline size_t getVerticesSize() const { return vertices.size() * sizeof(QVector3D); }
-    inline size_t getColorsSize() const { return colors.size() * sizeof(QVector3D); }
-    inline size_t getNormalsSize() const { return normals.size() * sizeof(QVector3D); }
+    size_t getVerticesSize() const;
+    size_t getColorsSize() const;
+    size_t getNormalsSize() const;
 
+    void updateMousePos(int &mx, int &my);
+    
     bool isDisplayed;
     vec3 clearColor;
 
@@ -42,11 +53,19 @@ private:
     QOpenGLVertexArrayObject m_vao;
     QOpenGLShaderProgram m_program;
 
+    Qt::MouseButton button;
+    int mouseX;
+    int mouseY;
+    
+    Camera m_camera;
+    QMatrix4x4 m_view;
+    
     std::vector<QVector3D> vertices;
     std::vector<QVector3D> colors;
     std::vector<QVector3D> normals;
 
     double maxHeight;
+    size_t vertexCount; // Pour si on charge une aute image pour risize le VBO
 
     friend class MainWindow;
 };
