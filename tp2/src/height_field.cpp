@@ -3,9 +3,15 @@
 #include <algorithm>
 #include <cmath>
 #include <QImage>
+#include <QColor>
 
 HeightField::HeightField() : SF() {}
-HeightField::HeightField(const SF &s) : SF(s) {}
+HeightField::HeightField(const SF &s) : SF(s)
+{
+    const auto pair = std::minmax_element(field.begin(), field.end());
+    minHeight = *pair.first;
+    maxHeight = *pair.second;
+}
 HeightField::HeightField(const QImage &image, const Box2D &box,
                          double boundmin, double boundmax)
     : SF(Grid(box, image.width(), image.height())), minHeight(boundmin), maxHeight(boundmax)
@@ -79,18 +85,19 @@ vec3 HeightField::normal(int i, int j) const
 
 QImage HeightField::grayscale() const
 {
+    return colorHSV(270, 330);
     QImage image(nx, ny, QImage::Format_Grayscale8);
 
     // https://en.cppreference.com/w/cpp/algorithm/minmax_element
-    const auto pair = std::minmax_element(field.begin(), field.end());
-    const auto min = pair.first;
-    const auto max = pair.second;
+    // const auto pair = std::minmax_element(field.begin(), field.end());
+    // const auto min = pair.first;
+    // const auto max = pair.second;
 
     double val;
     for (int i = 0; i < nx; ++i)
         for (int j = 0; j < ny; ++j)
         {
-            val = normalization(height(i, j), *min, *max, 0.0, 255.0);
+            val = normalization(height(i, j), minHeight, maxHeight, 0.0, 255.0);
             image.setPixelColor(i, j, QColor(val, val, val));
         }
 
@@ -99,6 +106,22 @@ QImage HeightField::grayscale() const
 
 QImage HeightField::colorHSV(int rangemin, int rangemax) const
 {
+    QImage image(nx, ny, QImage::Format_RGB16);
+
+    int h, s, v;
+    for (int i = 0; i < nx; ++i)
+        for (int j = 0; j < ny; ++j)
+        {
+            h = (int)normalization(height(i, j), minHeight, maxHeight, rangemin, rangemax);
+            // s = (int)normalization(height(i, j), minHeight, maxHeight, 0, 255);
+            v = (int)normalization(height(i, j), minHeight, maxHeight, 0, 255);
+            std::cout << h << " " << v << std::endl;
+
+            QColor color = QColor::fromHsv(h, 128, v);
+            image.setPixelColor(i, j, color.toRgb());
+        }
+
+    return image;
 }
 
 QImage HeightField::shade() const
