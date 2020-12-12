@@ -52,6 +52,8 @@ public:
     HeightField(const QImage &image, const Box2D &box, double boundmin, double boundmax);
     HeightField(const HeightField &hf);
 
+    HeightField& operator=(const HeightField& rhs);
+    
     void setMinMaxBounds();
 
     double height(int i, int j) const;

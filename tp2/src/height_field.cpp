@@ -38,6 +38,28 @@ HeightField::HeightField(const QImage &image, const Box2D &box,
 
 HeightField::HeightField(const HeightField &hf) : SF(hf), minHeight(hf.minHeight), maxHeight(hf.maxHeight) {}
 
+HeightField& HeightField::operator=(const HeightField& rhs)
+{
+    if (this != &rhs)
+    {
+        a = rhs.a;
+        b = rhs.b;
+        diagonal = rhs.diagonal;
+        
+        nx = rhs.nx;
+        ny = rhs.ny;
+        celldiagonal = rhs.celldiagonal;
+        inversecelldiagonal = rhs.inversecelldiagonal;
+        
+        field = rhs.field;
+
+        minHeight = rhs.minHeight;
+        maxHeight = rhs.maxHeight;
+    }
+    
+    return *this;
+}
+
 void HeightField::setMinMaxBounds()
 {
     const auto pair = std::minmax_element(field.begin(), field.end());
