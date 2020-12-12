@@ -132,14 +132,21 @@ SF SF::filter(const SF &sf, FilterType t)
 
     switch (t)
     {
+    /**
+     * TODO: corriger le Smooth
+     *         - ne donne que des 'nan'
+     */
     case FilterType::Smooth:
         applyFilter(sf, sf_filtered, mask_smooth);
         break;
+        
     case FilterType::Blur:
         applyFilter(sf, sf_filtered, mask_blur);
         break;
+        
     default:
         break;
     }
+    
     return sf_filtered;
 }
