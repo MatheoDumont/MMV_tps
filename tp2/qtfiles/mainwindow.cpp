@@ -27,7 +27,7 @@ void MainWindow::on_boundsSpecified()
     double min, max, boxsize;
     bd.getDoubles(min, max, boxsize);
 
-    if (min > max)
+    if (min >= max && boxsize <= 1)
         return;
 
     ui->statusbar->showMessage("Loading: \"" + filename + "\"", 1500);

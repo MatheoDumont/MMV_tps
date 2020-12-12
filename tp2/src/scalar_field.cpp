@@ -1,8 +1,8 @@
 #include "scalar_field.h"
 
 SF::SF() : Grid(), field() {}
-SF::SF(const SF &sf) : Grid(Box2D(sf.a, sf.b), sf.nx, sf.ny), field(sf.nx * sf.ny, 0.0) {}
 SF::SF(const Grid &g) : Grid(g), field(nx * ny, 0.0) {}
+SF::SF(const SF &sf) : Grid(Box2D(sf.a, sf.b), sf.nx, sf.ny), field(sf.field) {}
 
 double SF::at(int i, int j) const
 {

@@ -115,10 +115,9 @@ QImage HeightField::colorHSV(int rangemin, int rangemax) const
             h = (int)normalization(height(i, j), minHeight, maxHeight, rangemin, rangemax);
             // s = (int)normalization(height(i, j), minHeight, maxHeight, 0, 255);
             v = (int)normalization(height(i, j), minHeight, maxHeight, 0, 255);
-            std::cout << h << " " << v << std::endl;
 
             QColor color = QColor::fromHsv(h, 128, v);
-            image.setPixelColor(i, j, color.toRgb());
+            image.setPixelColor(i, j, color);
         }
 
     return image;
@@ -407,7 +406,6 @@ SF HeightField::drainage(int function) const
 //     return n;
 // }
 
-// Tain j'ai vraiment l'impression qu'il est en train de refaire le cours de raytracing x)
 /*
 enfin, de ce que je m'en souviens, oui
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -426,12 +424,7 @@ vous avez vu quand on a fait le prmier tp avec le shahder je peux reprenseter le
 avec f(x, y) =0
 donc je considere mon terrain comme un surface implicite, et on fait un spheretracing
 donc la constante de lipschitz pour notre fonction c'est ... x) Tintintin
-je m'emmeerde et ca me fait ecouter
-je lai plus ...
-normalement je vous avais parle de ca ... excusez moi
 ...
-il me semblait que j'en fuck
-
 je vous rappelle que ici on travail avec une surface d'elevation z = h(x, y)
 f(x,y,z) = z - h(x,y)
 distance bound slide 21 implicit modeling
@@ -439,10 +432,6 @@ distance bound slide 21 implicit modeling
 
 si on a un terrain definit par une grille d'elevation, qu'elle est la borne de ce machin la:
 on a plus qu'a trouver la fonction mu et c'est gagner => bonne question de fdp RIP nous
-je vous laisse mourir
-X_X
-mtn il regarde son porn :smirk:
-moi auss je suis perdu
 
 f/mu c'est un distancebound et lambda lipschitz de h
 f est un scalarfield qui a une seule Propriété de borne
@@ -479,5 +468,4 @@ E(p) = somme sur tous les jour, de la somme sur toutes les heures de l'ensoleill
 puisque la position soleil s varie en fonction de l'heure et du jour.
 s est fonction du jour, de l'heure et et et ? de la latitude et longitude.
 ya des codes pour connaitre ca, et faire une jolie map
-si on veut sucer on fait ca
 */
