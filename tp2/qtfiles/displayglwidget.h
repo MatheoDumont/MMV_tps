@@ -36,7 +36,9 @@ protected:
     void resizeGL(int w, int h) override;
     void paintGL() override;
 
+    void updateVertexBuffer();
     void updateColorBuffer();
+    void updateNormalBuffer();
     void updateMeshColor(HeightField hf);
 
 private:
@@ -45,6 +47,8 @@ private:
     size_t getNormalsSize() const;
 
     void updateMousePos(int &mx, int &my);
+    void updateVBO();
+    void centerCamera();
     
     bool isDisplayed;
     vec3 clearColor;

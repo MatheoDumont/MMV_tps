@@ -42,8 +42,12 @@ void MainWindow::on_boundsSpecified()
 
     ui->actionSave_image->setEnabled(true);
     ui->action3D_model->setEnabled(true);
-
+    
     // Création du mesh
+    ui->openGL_viewer->vertices.clear();
+    ui->openGL_viewer->colors.clear();
+    ui->openGL_viewer->normals.clear();
+    
     hf_base.getMesh(ui->openGL_viewer->vertices,
                     ui->openGL_viewer->colors,
                     ui->openGL_viewer->normals);

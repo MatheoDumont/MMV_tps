@@ -86,6 +86,15 @@ void DisplayGLWidget::mouseMoveEvent(QMouseEvent *ev)
     }
 }
 
+void DisplayGLWidget::centerCamera()
+{
+    vec3 pmin, pmax, middle;
+    pmin = vertices[0];
+    pmax = vertices[vertices.size() - 2];
+
+    m_camera.lookAt(pmin, pmax);
+}
+
 inline size_t DisplayGLWidget::getVerticesSize() const { return vertices.size() * sizeof(QVector3D); }
 inline size_t DisplayGLWidget::getColorsSize() const { return colors.size() * sizeof(QVector3D); }
 inline size_t DisplayGLWidget::getNormalsSize() const { return normals.size() * sizeof(QVector3D); }
@@ -171,12 +180,10 @@ void DisplayGLWidget::initializeGL()
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
-    
-    vec3 pmin, pmax, middle;
-    pmin = vertices[0];
-    pmax = vertices[vertices.size() - 2];
 
-    m_camera.lookAt(pmin, pmax);
+    vertexCount = vertices.size();
+
+    centerCamera();
 }
 
 void DisplayGLWidget::resizeGL(int w, int h)
@@ -189,6 +196,9 @@ void DisplayGLWidget::paintGL()
     if (isDisplayed == false)
         return;
 
+    if (vertexCount != vertices.size())
+        updateVBO();
+    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);    
     
     m_program.bind();
@@ -201,11 +211,28 @@ void DisplayGLWidget::paintGL()
 
     m_program.setUniformValue("u_mvp", mvp);
 
-    glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+    glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 
     m_vao.release();
     m_program.release();
     update();
+}
+
+void DisplayGLWidget::updateVertexBuffer()
+{
+    m_vao.bind();
+    m_vbo.bind();
+
+    size_t offset = 0;
+    size_t size = getVerticesSize();
+    m_vbo.write(offset, vertices.data(), size);
+    glVertexAttribPointer(0,
+                          3, GL_FLOAT,
+                          GL_FALSE,
+                          0, (const GLvoid *)offset);
+    
+    m_vao.release();
+    m_vbo.release();
 }
 
 void DisplayGLWidget::updateColorBuffer()
@@ -225,6 +252,23 @@ void DisplayGLWidget::updateColorBuffer()
     m_vbo.release();
 }
 
+void DisplayGLWidget::updateNormalBuffer()
+{
+    m_vao.bind();
+    m_vbo.bind();
+
+    size_t offset = getVerticesSize() + getColorsSize();
+    size_t size = getNormalsSize();
+    m_vbo.write(offset, normals.data(), size);
+    glVertexAttribPointer(2,
+                          3, GL_FLOAT,
+                          GL_FALSE,
+                          0, (const GLvoid *)offset);
+    
+    m_vao.release();
+    m_vbo.release();
+}
+    
 void DisplayGLWidget::updateMeshColor(HeightField hf)
 {
     colors.clear();
@@ -234,4 +278,25 @@ void DisplayGLWidget::updateMeshColor(HeightField hf)
             hf.colorCell(i, j, this->colors);
 
     updateColorBuffer();
+}
+
+void DisplayGLWidget::updateVBO()
+{
+    if (vertexCount < vertices.size())
+    {
+        m_vao.bind();
+        m_vbo.bind();
+
+        m_vbo.allocate(getVerticesSize() + getColorsSize() + getNormalsSize());
+
+        m_vbo.release();
+        m_vao.release();
+    }
+    
+    updateVertexBuffer();
+    updateColorBuffer();
+    updateNormalBuffer();
+
+    vertexCount = vertices.size();
+    centerCamera();
 }
