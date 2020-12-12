@@ -2,6 +2,7 @@
 #define VEC_H
 
 #include <iostream>
+#include <QColor>
 #include <QVector3D>
 
 struct vec2
@@ -30,6 +31,7 @@ struct vec3
     vec3(const vec3& v);
     vec3(const vec2& v, double _z);
     vec3(const QVector3D& qv);
+    vec3(const QColor& qc);
 
     double r() const;
     double g() const;

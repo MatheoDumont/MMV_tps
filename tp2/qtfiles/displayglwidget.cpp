@@ -92,6 +92,8 @@ void DisplayGLWidget::centerCamera()
     pmin = vertices[0];
     pmax = vertices[vertices.size() - 2];
 
+    pmax.y = maxHeight;
+
     m_camera.lookAt(pmin, pmax);
 }
 
@@ -272,14 +274,40 @@ void DisplayGLWidget::updateNormalBuffer()
     m_vao.release();
     m_vbo.release();
 }
-    
-void DisplayGLWidget::updateMeshColor(HeightField hf)
+
+void DisplayGLWidget::updateMeshTopology(HeightField hf)
 {
+    int i, j;
+    
+    
+    vertices.clear();
+    normals.clear();
+
+    for (i = 0; i < hf.getNX() - 1; ++i)
+        for (j = 0; j < hf.getNY() - 1; ++j)
+        {
+            hf.vertexCell(i, j, vertices);
+            hf.normalCell(i, j, normals);
+        }
+
+    updateVertexBuffer();
+    updateNormalBuffer();
+
+    maxHeight = hf.maxHeight;
+    
+    centerCamera();
+}
+
+void DisplayGLWidget::updateMeshColor(HeightField hf, HeightField::ColorType type,
+                                      int rangemin, int rangemax)
+{
+    int i, j;
+    
     colors.clear();
 
-    for (int i = 0; i < hf.getNX(); ++i)
-        for (int j = 0; j < hf.getNY(); ++j)
-            hf.colorCell(i, j, this->colors);
+    for (i = 0; i < hf.getNX() - 1; ++i)
+        for (j = 0; j < hf.getNY() - 1; ++j)
+            hf.colorCell(i, j, colors, type, rangemin, rangemax);
 
     updateColorBuffer();
 }

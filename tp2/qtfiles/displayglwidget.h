@@ -31,6 +31,10 @@ public:
     void mouseReleaseEvent(QMouseEvent *ev) override;
     void mouseMoveEvent(QMouseEvent *ev) override;
 
+    void updateMeshTopology(HeightField hf);
+    void updateMeshColor(HeightField hf, HeightField::ColorType type,
+                         int rangemin = 0, int rangemax = 359);
+
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
@@ -39,7 +43,6 @@ protected:
     void updateVertexBuffer();
     void updateColorBuffer();
     void updateNormalBuffer();
-    void updateMeshColor(HeightField hf);
 
 private:
     size_t getVerticesSize() const;
@@ -69,7 +72,7 @@ private:
     std::vector<QVector3D> normals;
 
     double maxHeight;
-    size_t vertexCount; // Pour si on charge une aute image pour risize le VBO
+    size_t vertexCount; // Pour si on charge une aute image pour resize le VBO
 
     friend class MainWindow;
 };

@@ -97,6 +97,7 @@ vec3::vec3(double _x, double _y, double _z) : x(_x), y(_y), z(_z) {}
 vec3::vec3(const vec3& v) : x(v.x), y(v.y), z(v.z) {}
 vec3::vec3(const vec2& v, double _z) : x(v.x), y(v.y), z(_z) {}
 vec3::vec3(const QVector3D& qv) : x(qv.x()), y(qv.y()), z(qv.z()) {}
+vec3::vec3(const QColor& qc) : x(qc.redF()), y(qc.greenF()), z(qc.blueF()) {}
 
 double vec3::r() const { return x; }
 double vec3::g() const { return y; }

@@ -73,13 +73,9 @@ private:
      */
     HeightField hf_color;
 
-    enum TypeOfDisplay
-    {
-        Grayscale,
-        HSV,
-        Coloring
-    };
-    TypeOfDisplay type;
+    HeightField::ColorType type;
+
+    friend class DisplayGLWidget;
 };
 
 #endif // MAINWINDOW_H

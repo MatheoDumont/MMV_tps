@@ -14,7 +14,8 @@ HeightField::HeightField(const SF &s) : SF(s)
 
 HeightField::HeightField(const QImage &image, const Box2D &box,
                          double boundmin, double boundmax)
-    : SF(Grid(box, image.width(), image.height())), minHeight(boundmin), maxHeight(boundmax)
+    : SF(Grid(box, image.width(), image.height())),
+      minHeight(boundmin), maxHeight(boundmax)
 {
     // Interpoler linéaire entre les 2 z (bound min et max correspondent respectivement
     // a la couleur min et la couleur max(blanc et noir))
@@ -36,7 +37,8 @@ HeightField::HeightField(const QImage &image, const Box2D &box,
                                                boundmin, boundmax);
 }
 
-HeightField::HeightField(const HeightField &hf) : SF(hf), minHeight(hf.minHeight), maxHeight(hf.maxHeight) {}
+HeightField::HeightField(const HeightField &hf)
+    : SF(hf), minHeight(hf.minHeight), maxHeight(hf.maxHeight) {}
 
 HeightField& HeightField::operator=(const HeightField& rhs)
 {
@@ -116,31 +118,34 @@ vec3 HeightField::normal(int i, int j) const
 
 QImage HeightField::grayscale() const
 {
+    int i, j;
+    vec3 v;
+    QColor color;
     QImage image(nx, ny, QImage::Format_Grayscale8);
 
-    double val;
-    for (int i = 0; i < nx; ++i)
-        for (int j = 0; j < ny; ++j)
+    for (i = 0; i < nx; ++i)
+        for (j = 0; j < ny; ++j)
         {
-            val = normalization(height(i, j), minHeight, maxHeight, 0.0, 255.0);
-            image.setPixelColor(i, j, QColor(val, val, val));
+            v = getGrayscale(i, j, 0, 255);
+            color = QColor(v.r(), v.g(), v.b());
+            image.setPixelColor(i, j, color);
         }
+    
     return image;
 }
 
 QImage HeightField::colorHSV(int rangemin, int rangemax) const
 {
+    int i, j;
+    vec3 v;
+    QColor color;
     QImage image(nx, ny, QImage::Format_RGB16);
 
-    int h, s, v;
-    for (int i = 0; i < nx; ++i)
-        for (int j = 0; j < ny; ++j)
+    for (i = 0; i < nx; ++i)
+        for (j = 0; j < ny; ++j)
         {
-            h = (int)normalization(height(i, j), minHeight, maxHeight, rangemin, rangemax);
-            // s = (int)normalization(height(i, j), minHeight, maxHeight, 0, 255);
-            v = (int)normalization(height(i, j), minHeight, maxHeight, 0, 255);
-
-            QColor color = QColor::fromHsv(h, 128, v);
+            v = getColorHSV(i, j, 0, 255, rangemin, rangemax);
+            color = QColor(v.r(), v.g(), v.b());
             image.setPixelColor(i, j, color);
         }
 
@@ -149,15 +154,17 @@ QImage HeightField::colorHSV(int rangemin, int rangemax) const
 
 QImage HeightField::color() const
 {
+    int i, j;
+    vec3 v;
+    QColor color;
     QImage image(nx, ny, QImage::Format_RGB16);
 
-    int v;
-    for (int i = 0; i < nx; ++i)
-        for (int j = 0; j < ny; ++j)
+    for (i = 0; i < nx; ++i)
+        for (j = 0; j < ny; ++j)
         {
-            v = (int)normalization(height(i, j), minHeight, maxHeight, 0, 255);
+            v = getColor(i, j, 0, 255);
 
-            QColor color(v, 0, 255 - v);
+            color = QColor(v.r(), v.g(), v.b());
             image.setPixelColor(i, j, color);
         }
 
@@ -218,13 +225,88 @@ SF HeightField::laplacianMap() const
     return s;
 }
 
-void HeightField::colorCell(int i, int j, std::vector<QVector3D> &colors) const
+vec3 HeightField::getGrayscale(int i, int j, double min, double max) const
+{
+    double val;
+
+    val = normalization(height(i, j), minHeight, maxHeight, min, max);
+    
+    return vec3(val, val, val);
+}
+
+vec3 HeightField::getColorHSV(int i, int j, double min, double max, int rangemin, int rangemax) const
+{
+    int h, s, v;
+
+    h = (int)normalization(height(i, j), minHeight, maxHeight, rangemin, rangemax);
+    // s = (int)normalization(height(i, j), minHeight, maxHeight, 0.0, 255.0);
+    v = (int)normalization(height(i, j), minHeight, maxHeight, 0.0, 255.0);
+
+    QColor color = QColor::fromHsv(h, 128, v);
+
+    if (max == 1.0)
+        return vec3(color); // Normalisé entre 0.0 et 1.0;
+
+    return vec3(color.red(), color.green(), color.blue()); // Normalisé entre 0 et 255
+}
+
+vec3 HeightField::getColor(int i, int j, double min, double max) const
+{
+    double v;
+
+    v = normalization(height(i, j), minHeight, maxHeight, min, max);
+
+    return vec3(v, 0.0, max - v);
+}
+
+void HeightField::vertexCell(int i, int j, std::vector<QVector3D> &vertices) const
 {
     vec3 v0, v1, v2, v3;
-    v0 = vec3(normalization(height(i, j), minHeight, maxHeight, 0.0, 1.0));
-    v1 = vec3(normalization(height(i + 1, j), minHeight, maxHeight, 0.0, 1.0));
-    v2 = vec3(normalization(height(i + 1, j + 1), minHeight, maxHeight, 0.0, 1.0));
-    v3 = vec3(normalization(height(i, j + 1), minHeight, maxHeight, 0.0, 1.0));
+    v0 = vertex(i, j);
+    v1 = vertex(i + 1, j);
+    v2 = vertex(i + 1, j + 1);
+    v3 = vertex(i, j + 1);
+
+    vertices.emplace_back(v0.x, v0.y, v0.z);
+    vertices.emplace_back(v1.x, v1.y, v1.z);
+    vertices.emplace_back(v2.x, v2.y, v2.z);
+
+    vertices.emplace_back(v0.x, v0.y, v0.z);
+    vertices.emplace_back(v2.x, v2.y, v2.z);
+    vertices.emplace_back(v3.x, v3.y, v3.z);
+}
+
+void HeightField::colorCell(int i, int j, std::vector<QVector3D> &colors,
+                            ColorType type, int rangemin, int rangemax) const
+{
+    vec3 v0, v1, v2, v3;
+
+    switch (type)
+    {
+    case Grayscale:
+        v0 = getGrayscale(i, j, 0.0, 1.0);
+        v1 = getGrayscale(i + 1, j, 0.0, 1.0);
+        v2 = getGrayscale(i + 1, j + 1, 0.0, 1.0);
+        v3 = getGrayscale(i, j + 1, 0.0, 1.0);
+        break;
+
+    case HSV:
+        v0 = getColorHSV(i, j, 0.0, 1.0, rangemin, rangemax);
+        v1 = getColorHSV(i + 1, j, 0.0, 1.0, rangemin, rangemax);
+        v2 = getColorHSV(i + 1, j + 1, 0.0, 1.0, rangemin, rangemax);
+        v3 = getColorHSV(i, j + 1, 0.0, 1.0, rangemin, rangemax);
+        break;
+
+    case Coloring:
+        v0 = getColor(i, j, 0.0, 1.0);
+        v1 = getColor(i + 1, j, 0.0, 1.0);
+        v2 = getColor(i + 1, j + 1, 0.0, 1.0);
+        v3 = getColor(i, j + 1, 0.0, 1.0);
+        break;
+
+    default:
+        break;
+    }
 
     colors.emplace_back(v0.x, v0.y, v0.z);
     colors.emplace_back(v1.x, v1.y, v1.z);
@@ -235,47 +317,44 @@ void HeightField::colorCell(int i, int j, std::vector<QVector3D> &colors) const
     colors.emplace_back(v3.x, v3.y, v3.z);
 }
 
-void HeightField::getMesh(std::vector<QVector3D> &vertices,
+void HeightField::normalCell(int i, int j, std::vector<QVector3D> &normals) const
+{
+    vec3 v0, v1, v2, v3;
+    v0 = normal(i, j);
+    v1 = normal(i + 1, j);
+    v2 = normal(i + 1, j + 1);
+    v3 = normal(i, j + 1);
+
+    normals.emplace_back(v0.x, v0.y, v0.z);
+    normals.emplace_back(v1.x, v1.y, v1.z);
+    normals.emplace_back(v2.x, v2.y, v2.z);
+
+    normals.emplace_back(v0.x, v0.y, v0.z);
+    normals.emplace_back(v2.x, v2.y, v2.z);
+    normals.emplace_back(v3.x, v3.y, v3.z);
+}
+
+void HeightField::getMesh(double &maxHeight,
+                          std::vector<QVector3D> &vertices,
                           std::vector<QVector3D> &colors,
                           std::vector<QVector3D> &normals) const
 {
     int i, j;
-    vec3 v0, v1, v2, v3;
 
     for (i = 0; i < nx - 1; ++i)
         for (j = 0; j < ny - 1; ++j)
         {
             // Vertices
-            v0 = vertex(i, j);
-            v1 = vertex(i + 1, j);
-            v2 = vertex(i + 1, j + 1);
-            v3 = vertex(i, j + 1);
-
-            vertices.emplace_back(v0.x, v0.y, v0.z);
-            vertices.emplace_back(v1.x, v1.y, v1.z);
-            vertices.emplace_back(v2.x, v2.y, v2.z);
-
-            vertices.emplace_back(v0.x, v0.y, v0.z);
-            vertices.emplace_back(v2.x, v2.y, v2.z);
-            vertices.emplace_back(v3.x, v3.y, v3.z);
+            vertexCell(i, j, vertices);
 
             // Colors
-            colorCell(i, j, colors);
+            colorCell(i, j, colors, ColorType::Grayscale);
 
             // Normals
-            v0 = normal(i, j);
-            v1 = normal(i + 1, j);
-            v2 = normal(i + 1, j + 1);
-            v3 = normal(i, j + 1);
-
-            normals.emplace_back(v0.x, v0.y, v0.z);
-            normals.emplace_back(v1.x, v1.y, v1.z);
-            normals.emplace_back(v2.x, v2.y, v2.z);
-
-            normals.emplace_back(v0.x, v0.y, v0.z);
-            normals.emplace_back(v2.x, v2.y, v2.z);
-            normals.emplace_back(v3.x, v3.y, v3.z);
+            normalCell(i, j, normals);
         }
+
+    maxHeight = this->maxHeight;
 }
 
 std::vector<Point> HeightField::getPoints() const

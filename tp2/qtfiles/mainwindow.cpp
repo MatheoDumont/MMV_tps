@@ -8,7 +8,7 @@
 #include <QPixmap>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), bd(this), type(TypeOfDisplay::Grayscale)
+    : QMainWindow(parent), ui(new Ui::MainWindow), bd(this), type(HeightField::Grayscale)
 {
     ui->setupUi(this);
 
@@ -27,7 +27,7 @@ void MainWindow::on_boundsSpecified()
     double min, max, boxsize;
     bd.getDoubles(min, max, boxsize);
 
-    if (min >= max && boxsize <= 1)
+    if (min >= max || boxsize <= 1)
         return;
 
     ui->statusbar->showMessage("Loading: \"" + filename + "\"", 1500);
@@ -47,7 +47,8 @@ void MainWindow::on_boundsSpecified()
     ui->openGL_viewer->colors.clear();
     ui->openGL_viewer->normals.clear();
 
-    hf_topology.getMesh(ui->openGL_viewer->vertices,
+    hf_topology.getMesh(ui->openGL_viewer->maxHeight,
+                        ui->openGL_viewer->vertices,
                         ui->openGL_viewer->colors,
                         ui->openGL_viewer->normals);
 
@@ -56,26 +57,38 @@ void MainWindow::on_boundsSpecified()
 
 void MainWindow::displayGL()
 {
-    ui->openGL_viewer->updateMeshColor(hf_color);
+    ui->openGL_viewer->updateMeshTopology(hf_topology);
+
+    /**
+     * TODO: enlever paramètres en dur et mettre un sélecteur dans l'UI
+     */
+    ui->openGL_viewer->updateMeshColor(hf_color, type, 270, 330);
+    
     ui->openGL_viewer->paintGL();
 }
 
 void MainWindow::displayImage()
 {
     QPixmap res;
-
+    
     switch (this->type)
     {
-    case TypeOfDisplay::Grayscale:
+    case HeightField::ColorType::Grayscale:
+        std::cout << "Gray" << std::endl;
         res = QPixmap::fromImage(hf_color.grayscale());
         break;
-    case TypeOfDisplay::HSV:
+        
+    case HeightField::ColorType::HSV:
         // TODO enlever parametres en dur et mettre un selecteur dans ui
+        std::cout << "HSV" << std::endl;
         res = QPixmap::fromImage(hf_color.colorHSV(270, 330));
         break;
-    case TypeOfDisplay::Coloring:
+        
+    case HeightField::ColorType::Coloring:
+        std::cout << "Coloring" << std::endl;
         res = QPixmap::fromImage(hf_color.color());
         break;
+        
     default:
         break;
     }
@@ -144,19 +157,19 @@ void MainWindow::on_StreamAreaSteepestButton_clicked()
 
 void MainWindow::on_grayscaling_clicked()
 {
-    this->type = TypeOfDisplay::Grayscale;
+    this->type = HeightField::ColorType::Grayscale;
     display();
 }
 
 void MainWindow::on_standardColoring_clicked()
 {
-    this->type = TypeOfDisplay::Coloring;
+    this->type = HeightField::ColorType::Coloring;
     display();
 }
 
 void MainWindow::on_HSVIng_clicked()
 {
-    this->type = TypeOfDisplay::HSV;
+    this->type = HeightField::ColorType::HSV;
     display();
 }
 

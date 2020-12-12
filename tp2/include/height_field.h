@@ -1,11 +1,12 @@
 #ifndef HEIGHT_FIELD_H
 #define HEIGHT_FIELD_H
 
-#include "scalar_field.h"
 #include <vector>
 
 #include <QImage>
 #include <QVector3D>
+
+#include "scalar_field.h"
 
 struct Point
 {
@@ -38,6 +39,13 @@ struct StreamAreaCell
 class HeightField : public SF
 {
 public:
+    enum ColorType
+    {
+        Grayscale,
+        HSV,
+        Coloring,
+    };
+    
     enum StreamAreaFunc
     {
         D8,
@@ -66,6 +74,7 @@ public:
     QImage grayscale() const;
     QImage colorHSV(int rangemin, int rangemax) const;
     QImage color() const;
+    
     QImage shade() const;
 
     void exportObj() const;
@@ -73,14 +82,30 @@ public:
     SF slopeMap() const;
     SF laplacianMap() const;
 
+    vec3 getGrayscale(int i, int j, double min, double max) const;
+    vec3 getColorHSV(int i, int j, double min, double max, int rangemin, int rangemax) const;
+    vec3 getColor(int i, int j, double min, double max) const;
+    
     /*
-     * Couleur du triangle courant construitent, necessaire pour mettre a jour 
-     * le vbo et comme tonton titi dit : "pas de copier/coller, c'est haram."
+     * Mise à jour des sommets associés à la cellule (i, j)
      */
-    void colorCell(int i, int j, std::vector<QVector3D> &colors) const;
-    void getMesh(std::vector<QVector3D> &vertices,
+    void vertexCell(int i, int j, std::vector<QVector3D> &vertices) const;
+    
+    /*
+     * Mise à jour des couleurs associées à la cellule (i, j)
+     */
+    void colorCell(int i, int j, std::vector<QVector3D> &colors,
+                   ColorType type, int rangemin = 0, int rangemax = 359) const;
+
+    /*
+     * Mise à jour des normales associées à la cellule (i, j)
+     */
+    void normalCell(int i, int j, std::vector<QVector3D> &normals) const;
+    
+    void getMesh(double &maxHeight,
+                 std::vector<QVector3D> &vertices,
                  std::vector<QVector3D> &colors,
-                 std::vector<QVector3D> &normals) const;
+                 std::vector<QVector3D> &normals) const;    
 
     std::vector<Point> getPoints() const;
 
