@@ -90,7 +90,7 @@ void MainWindow::on_action3D_model_triggered()
     ui->openGL_viewer->setIsDisplayed(true);
 }
 
-void MainWindow::on_StreamArea(int func)
+void MainWindow::on_StreamArea(HeightField::StreamAreaFunc func)
 {
     SF sf = hf_base.drainage(func);
     hf_transforme = HeightField(sf);
@@ -102,7 +102,7 @@ void MainWindow::on_StreamArea(int func)
     }
     else
     {
-        QPixmap res = QPixmap::fromImage(hf_transforme.grayscale());
+        QPixmap res = QPixmap::fromImage(hf_transforme.colorHSV(270, 330));
         int w = ui->image_viewer->width();
         int h = ui->image_viewer->height();
         ui->image_viewer->setPixmap(res.scaled(w, h, Qt::KeepAspectRatio));
@@ -110,10 +110,10 @@ void MainWindow::on_StreamArea(int func)
 }
 void MainWindow::on_StreamAreaD8_Button_clicked()
 {
-    on_StreamArea(0);
+    on_StreamArea(HeightField::StreamAreaFunc::D8);
 }
 
 void MainWindow::on_StreamAreaSteepestButton_clicked()
 {
-    on_StreamArea(1);
+    on_StreamArea(HeightField::StreamAreaFunc::Steepest);
 }

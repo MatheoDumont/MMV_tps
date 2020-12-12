@@ -85,13 +85,7 @@ vec3 HeightField::normal(int i, int j) const
 
 QImage HeightField::grayscale() const
 {
-    return colorHSV(270, 330);
     QImage image(nx, ny, QImage::Format_Grayscale8);
-
-    // https://en.cppreference.com/w/cpp/algorithm/minmax_element
-    // const auto pair = std::minmax_element(field.begin(), field.end());
-    // const auto min = pair.first;
-    // const auto max = pair.second;
 
     double val;
     for (int i = 0; i < nx; ++i)
@@ -252,7 +246,7 @@ std::pair<int, int> next[8] = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1
 const float sqrt_2 = 1.41421356237;
 float distance[8] = {1., sqrt_2, 1., sqrt_2, 1., sqrt_2, 1., sqrt_2};
 
-StreamAreaCell HeightField::D8(const Point &p) const
+StreamAreaCell HeightField::d8(const Point &p) const
 {
     // float diag = celldiagonal.length();
     // float d[8] = {celldiagonal.x, diag, celldiagonal.y, diag, celldiagonal.x, diag, celldiagonal.y, diag};
@@ -320,7 +314,7 @@ StreamAreaCell HeightField::steepest(const Point &p) const
     return cell;
 }
 
-SF HeightField::drainage(int function) const
+SF HeightField::drainage(StreamAreaFunc function) const
 {
     // 3 etapes :
     // 1. trier tous les points Pij selon Zij, leurs hauteur -> tableau T (trié)
@@ -348,17 +342,17 @@ SF HeightField::drainage(int function) const
     //        * 2 algo a voir : le steepest et l'algo D8
     //              steapest (100% du déversement à la cellule la plus basse, ie. ayant la plus forte pente)
     //              D8 (on lance un dé à 8 faces) X)
-    if (function == 0)
+    if (function == D8)
     {
         for (Point p : points)
         {
-            StreamAreaCell cell = D8(p);
+            StreamAreaCell cell = d8(p);
 
             for (int i = 0; i < cell.n; ++i)
                 sf.at(cell.points[i].i, cell.points[i].j) += sf.at(p.i, p.j) * (cell.slopes[i] / cell.sum_slope);
         }
     }
-    else if (function == 1)
+    else if (function == Steepest)
     {
         for (Point p : points)
         {

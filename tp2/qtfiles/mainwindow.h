@@ -33,7 +33,7 @@ private slots:
     void on_actionImage_view_triggered();
     void on_action3D_model_triggered();
 
-    void on_StreamArea(int func);
+    void on_StreamArea(HeightField::StreamAreaFunc func);
     void on_StreamAreaD8_Button_clicked();
     void on_StreamAreaSteepestButton_clicked();
 

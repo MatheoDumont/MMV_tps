@@ -38,6 +38,12 @@ struct StreamAreaCell
 class HeightField : public SF
 {
 public:
+    enum StreamAreaFunc
+    {
+        D8,
+        Steepest,
+    };
+    
     double minHeight;
     double maxHeight;
 
@@ -72,7 +78,7 @@ public:
 
     std::vector<Point> getPoints() const;
 
-    StreamAreaCell D8(const Point &p) const;
+    StreamAreaCell d8(const Point &p) const;
     StreamAreaCell steepest(const Point &p) const;
 
     /*
@@ -81,7 +87,7 @@ public:
      * 0 : D8, l'eau coule de facon pondere en fonction des pentes
      * 1 : steepest, l'eau coule a 100% vers le plus bas
      */
-    SF drainage(int function) const;
+    SF drainage(StreamAreaFunc function) const;
 };
 
 #endif
