@@ -33,9 +33,11 @@ void MainWindow::on_boundsSpecified()
     ui->statusbar->showMessage("Loading: \"" + filename + "\"", 1500);
     image = QImage(filename);
     Box2D box(vec2(0.0), vec2(boxsize));
-    hf_base = HeightField(image, box, min, max);
 
-    displayImage(hf_base);
+    hf_topology = HeightField(image, box, min, max);
+    hf_color = HeightField(hf_topology);
+
+    displayImage();
 
     ui->actionSave_image->setEnabled(true);
     ui->action3D_model->setEnabled(true);
@@ -45,34 +47,34 @@ void MainWindow::on_boundsSpecified()
     ui->openGL_viewer->colors.clear();
     ui->openGL_viewer->normals.clear();
 
-    hf_base.getMesh(ui->openGL_viewer->vertices,
-                    ui->openGL_viewer->colors,
-                    ui->openGL_viewer->normals);
+    hf_topology.getMesh(ui->openGL_viewer->vertices,
+                        ui->openGL_viewer->colors,
+                        ui->openGL_viewer->normals);
 
-    ui->openGL_viewer->maxHeight = hf_base.maxHeight;
+    ui->openGL_viewer->maxHeight = hf_topology.maxHeight;
 }
 
-void MainWindow::displayGL(const HeightField &hf)
+void MainWindow::displayGL()
 {
-    ui->openGL_viewer->updateMeshColor(hf);
+    ui->openGL_viewer->updateMeshColor(hf_color);
     ui->openGL_viewer->paintGL();
 }
 
-void MainWindow::displayImage(const HeightField &hf)
+void MainWindow::displayImage()
 {
     QPixmap res;
 
     switch (this->type)
     {
     case TypeOfDisplay::Grayscale:
-        res = QPixmap::fromImage(hf.grayscale());
+        res = QPixmap::fromImage(hf_color.grayscale());
         break;
     case TypeOfDisplay::HSV:
         // TODO enlever parametres en dur et mettre un selecteur dans ui
-        res = QPixmap::fromImage(hf.colorHSV(270, 330));
+        res = QPixmap::fromImage(hf_color.colorHSV(270, 330));
         break;
     case TypeOfDisplay::Coloring:
-        res = QPixmap::fromImage(hf.color());
+        res = QPixmap::fromImage(hf_color.color());
         break;
     default:
         break;
@@ -83,12 +85,12 @@ void MainWindow::displayImage(const HeightField &hf)
     ui->image_viewer->setPixmap(res.scaled(w, h, Qt::KeepAspectRatio));
 }
 
-void MainWindow::display(const HeightField &hf)
+void MainWindow::display()
 {
     if (ui->openGL_viewer->getIsDisplayed())
-        displayGL(hf);
+        displayGL();
     else
-        displayImage(hf);
+        displayImage();
 }
 
 void MainWindow::on_actionOpen_image_triggered()
@@ -128,56 +130,48 @@ void MainWindow::on_action3D_model_triggered()
 
 void MainWindow::on_StreamAreaD8_Button_clicked()
 {
-    SF sf = hf_base.drainage(HeightField::StreamAreaFunc::D8);
-    hf_transforme = HeightField(sf);
-    display(hf_transforme);
+    SF sf = hf_topology.drainage(HeightField::StreamAreaFunc::D8);
+    hf_color = HeightField(sf);
+    display();
 }
 
 void MainWindow::on_StreamAreaSteepestButton_clicked()
 {
-    SF sf = hf_base.drainage(HeightField::StreamAreaFunc::Steepest);
-    hf_transforme = HeightField(sf);
-    display(hf_transforme);
+    SF sf = hf_topology.drainage(HeightField::StreamAreaFunc::Steepest);
+    hf_color = HeightField(sf);
+    display();
 }
 
 void MainWindow::on_grayscaling_clicked()
 {
     this->type = TypeOfDisplay::Grayscale;
-    display(hf_base);
+    display();
 }
 
 void MainWindow::on_standardColoring_clicked()
 {
     this->type = TypeOfDisplay::Coloring;
-    display(hf_base);
+    display();
 }
 
 void MainWindow::on_HSVIng_clicked()
 {
     this->type = TypeOfDisplay::HSV;
-    display(hf_base);
+    display();
 }
 
 void MainWindow::on_smoothing_clicked()
 {
-    SF sf = SF::filter(hf_base, SF::FilterType::Smooth);
-    hf_base = HeightField(sf);
-
-    if (ui->openGL_viewer->getIsDisplayed())
-        hf_base.getMesh(ui->openGL_viewer->vertices,
-                        ui->openGL_viewer->colors,
-                        ui->openGL_viewer->normals);
-    display(hf_base);
+    SF sf = SF::filter(hf_topology, SF::FilterType::Smooth);
+    hf_topology = HeightField(sf);
+    hf_color = HeightField(hf_topology);
+    display();
 }
 
 void MainWindow::on_bluring_clicked()
 {
-    SF sf = SF::filter(hf_base, SF::FilterType::Blur);
-    hf_base = HeightField(sf);
-    
-    if (ui->openGL_viewer->getIsDisplayed())
-        hf_base.getMesh(ui->openGL_viewer->vertices,
-                        ui->openGL_viewer->colors,
-                        ui->openGL_viewer->normals);
-    display(hf_base);
+    SF sf = SF::filter(hf_topology, SF::FilterType::Blur);
+    hf_topology = HeightField(sf);
+    hf_color = HeightField(hf_topology);
+    display();
 }

@@ -17,6 +17,6 @@ def gaussian_kernel(size, sigma=1):
     return g
 
 
-mask = gaussian_kernel(3, 1)
+mask = gaussian_kernel(5, 2)
 
 print(mask)

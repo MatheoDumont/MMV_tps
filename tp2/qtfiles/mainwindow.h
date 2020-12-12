@@ -48,9 +48,9 @@ private slots:
      *      - displayImage
      *      - displayGL
      */
-    void display(const HeightField &hf);
-    void displayImage(const HeightField &hf);
-    void displayGL(const HeightField &hf);
+    void display();
+    void displayImage();
+    void displayGL();
 
 private:
     Ui::MainWindow *ui;
@@ -60,8 +60,18 @@ private:
     QString filter = "Image (*.jpe *.jpg *.jpeg *.png *.tif *.tiff *.raw)";
     QImage image;
 
-    HeightField hf_base;
-    HeightField hf_transforme;
+    /*
+     * On sauvegarde dedans les informations de la hauteur
+     * C'est lui qu'on modifie avec les filtres smooth et blur
+     * On l'utilise aussi pour construire le maillage et les normals.
+     */
+    HeightField hf_topology;
+
+    /*
+     * On sauvegarde dedans uniquement les informations qui vont nous servir
+     * a calculer les images / textures/
+     */
+    HeightField hf_color;
 
     enum TypeOfDisplay
     {

@@ -50,8 +50,7 @@ public:
     HeightField();
     HeightField(const SF &s);
     HeightField(const QImage &image, const Box2D &box, double boundmin, double boundmax);
-
-    // HeightField &operator=(HeightField &&) = delete;
+    HeightField(const HeightField &hf);
 
     void setMinMaxBounds();
 

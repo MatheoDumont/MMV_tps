@@ -6,6 +6,7 @@
 #include <QColor>
 
 HeightField::HeightField() : SF() {}
+
 HeightField::HeightField(const SF &s) : SF(s)
 {
     setMinMaxBounds();
@@ -34,6 +35,8 @@ HeightField::HeightField(const QImage &image, const Box2D &box,
                                                0.0, 255.0,
                                                boundmin, boundmax);
 }
+
+HeightField::HeightField(const HeightField &hf) : SF(hf), minHeight(hf.minHeight), maxHeight(hf.maxHeight) {}
 
 void HeightField::setMinMaxBounds()
 {
@@ -370,7 +373,7 @@ SF HeightField::drainage(StreamAreaFunc function) const
             StreamAreaCell cell = d8(p);
 
             for (int i = 0; i < cell.n; ++i)
-                sf.at(cell.points[i].i, cell.points[i].j) += sf.at(p.i, p.j) * (cell.slopes[i] / cell.sum_slope);
+                sf.at(cell.points[i].i, cell.points[i].j) += (sf.at(p.i, p.j) * cell.slopes[i]) / cell.sum_slope;
         }
     }
     else if (function == Steepest)
@@ -380,7 +383,7 @@ SF HeightField::drainage(StreamAreaFunc function) const
             StreamAreaCell cell = steepest(p);
 
             for (int i = 0; i < cell.n; ++i)
-                sf.at(cell.points[i].i, cell.points[i].j) += sf.at(p.i, p.j) * (cell.slopes[i] / cell.sum_slope);
+                sf.at(cell.points[i].i, cell.points[i].j) += (sf.at(p.i, p.j) * cell.slopes[i]) / cell.sum_slope;
         }
     }
 
