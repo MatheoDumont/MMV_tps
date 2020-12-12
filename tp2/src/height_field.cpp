@@ -8,10 +8,9 @@
 HeightField::HeightField() : SF() {}
 HeightField::HeightField(const SF &s) : SF(s)
 {
-    const auto pair = std::minmax_element(field.begin(), field.end());
-    minHeight = *pair.first;
-    maxHeight = *pair.second;
+    setMinMaxBounds();
 }
+
 HeightField::HeightField(const QImage &image, const Box2D &box,
                          double boundmin, double boundmax)
     : SF(Grid(box, image.width(), image.height())), minHeight(boundmin), maxHeight(boundmax)
@@ -34,6 +33,13 @@ HeightField::HeightField(const QImage &image, const Box2D &box,
             field[index(i, j)] = normalization(qGray(grayscale.pixel(i, j)),
                                                0.0, 255.0,
                                                boundmin, boundmax);
+}
+
+void HeightField::setMinMaxBounds()
+{
+    const auto pair = std::minmax_element(field.begin(), field.end());
+    minHeight = *pair.first;
+    maxHeight = *pair.second;
 }
 
 double HeightField::height(int i, int j) const
@@ -94,7 +100,6 @@ QImage HeightField::grayscale() const
             val = normalization(height(i, j), minHeight, maxHeight, 0.0, 255.0);
             image.setPixelColor(i, j, QColor(val, val, val));
         }
-
     return image;
 }
 
@@ -111,6 +116,23 @@ QImage HeightField::colorHSV(int rangemin, int rangemax) const
             v = (int)normalization(height(i, j), minHeight, maxHeight, 0, 255);
 
             QColor color = QColor::fromHsv(h, 128, v);
+            image.setPixelColor(i, j, color);
+        }
+
+    return image;
+}
+
+QImage HeightField::color() const
+{
+    QImage image(nx, ny, QImage::Format_RGB16);
+
+    int v;
+    for (int i = 0; i < nx; ++i)
+        for (int j = 0; j < ny; ++j)
+        {
+            v = (int)normalization(height(i, j), minHeight, maxHeight, 0, 255);
+
+            QColor color(v, 0, 255 - v);
             image.setPixelColor(i, j, color);
         }
 
@@ -211,7 +233,6 @@ void HeightField::getMesh(std::vector<QVector3D> &vertices,
             vertices.emplace_back(v0.x, v0.y, v0.z);
             vertices.emplace_back(v2.x, v2.y, v2.z);
             vertices.emplace_back(v3.x, v3.y, v3.z);
-            
 
             // Colors
             colorCell(i, j, colors);
@@ -323,7 +344,7 @@ SF HeightField::drainage(StreamAreaFunc function) const
     std::sort(points.begin(), points.end());
 
     // 2. initialiser un SF a (aire de drainage) de la taile qui va bien (nx, ny) avec 1.0 dedans pour chaque point.
-    SF sf = SF(Grid(Box2D(a, b), nx, ny));
+    SF sf = SF(*this);
     for (int i = 0; i < nx; ++i)
         for (int j = 0; j < ny; ++j)
             sf.at(i, j) = 1.0;
@@ -363,7 +384,7 @@ SF HeightField::drainage(StreamAreaFunc function) const
         }
     }
 
-    return sf; // pour compiler
+    return sf;
 }
 
 /**

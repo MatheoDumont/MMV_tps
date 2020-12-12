@@ -43,13 +43,17 @@ public:
         D8,
         Steepest,
     };
-    
+
     double minHeight;
     double maxHeight;
 
     HeightField();
     HeightField(const SF &s);
     HeightField(const QImage &image, const Box2D &box, double boundmin, double boundmax);
+
+    // HeightField &operator=(HeightField &&) = delete;
+
+    void setMinMaxBounds();
 
     double height(int i, int j) const;
     double slope(int i, int j) const;
@@ -60,6 +64,7 @@ public:
 
     QImage grayscale() const;
     QImage colorHSV(int rangemin, int rangemax) const;
+    QImage color() const;
     QImage shade() const;
 
     void exportObj() const;

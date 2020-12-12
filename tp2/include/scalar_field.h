@@ -12,6 +12,12 @@ protected:
     std::vector<double> field;
 
 public:
+    enum FilterType
+    {
+        Smooth,
+        Blur,
+    };
+
     SF();
     SF(const Grid &g);
     SF(const SF &sf);
@@ -53,8 +59,7 @@ public:
      * 1 : filtre gaussien => blur
      * Les masques sont hard codes.
      */
-    void filter(int filter_choice);
-
+    static SF filter(const SF &sf, FilterType t);
 };
 
 #endif

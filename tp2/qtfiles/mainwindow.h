@@ -33,9 +33,24 @@ private slots:
     void on_actionImage_view_triggered();
     void on_action3D_model_triggered();
 
-    void on_StreamArea(HeightField::StreamAreaFunc func);
     void on_StreamAreaD8_Button_clicked();
     void on_StreamAreaSteepestButton_clicked();
+
+    void on_grayscaling_clicked();
+    void on_standardColoring_clicked();
+    void on_HSVIng_clicked();
+
+    void on_smoothing_clicked();
+    void on_bluring_clicked();
+
+    /*
+     * display() appelle en fonction de ui->openGL_viewer->getIsDisplayed():
+     *      - displayImage
+     *      - displayGL
+     */
+    void display(const HeightField &hf);
+    void displayImage(const HeightField &hf);
+    void displayGL(const HeightField &hf);
 
 private:
     Ui::MainWindow *ui;
@@ -47,6 +62,14 @@ private:
 
     HeightField hf_base;
     HeightField hf_transforme;
+
+    enum TypeOfDisplay
+    {
+        Grayscale,
+        HSV,
+        Coloring
+    };
+    TypeOfDisplay type;
 };
 
 #endif // MAINWINDOW_H
