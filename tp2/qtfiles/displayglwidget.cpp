@@ -209,7 +209,11 @@ void DisplayGLWidget::paintGL()
     QMatrix4x4 proj = m_camera.projection(width(), height(), 45.f);
     QMatrix4x4 mvp = proj * view * model;
 
+    vec3 camera_pos = m_camera.position();
+    
     m_program.setUniformValue("u_mvp", mvp);
+    m_program.setUniformValue("u_camera", QVector3D(camera_pos.x, camera_pos.y, camera_pos.z));
+    m_program.setUniformValue("u_source", QVector3D(camera_pos.x, camera_pos.y, camera_pos.z));
 
     glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 
