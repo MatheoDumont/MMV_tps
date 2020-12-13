@@ -33,7 +33,7 @@ public:
 
     void updateMeshTopology(HeightField hf);
     void updateMeshColor(HeightField hf, HeightField::ColorType type,
-                         int rangemin = 0, int rangemax = 359);
+                         bool isStreamArea = false, int rangemin = 0, int rangemax = 359);
 
 protected:
     void initializeGL() override;

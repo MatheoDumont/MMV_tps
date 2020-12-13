@@ -78,6 +78,7 @@ private:
     HeightField hf_color;
 
     HeightField::ColorType type;
+    bool isStreamArea = false;
 
     friend class DisplayGLWidget;
 };

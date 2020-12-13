@@ -73,7 +73,7 @@ public:
 
     QImage grayscale() const;
     QImage colorHSV(int rangemin, int rangemax) const;
-    QImage color() const;
+    QImage color(bool isStreamArea) const;
     
     QImage shade() const;
 
@@ -84,7 +84,7 @@ public:
 
     vec3 getGrayscale(int i, int j, double min, double max) const;
     vec3 getColorHSV(int i, int j, double min, double max, int rangemin, int rangemax) const;
-    vec3 getColor(int i, int j, double min, double max) const;
+    vec3 getColor(int i, int j, double min, double max, bool isStreamArea) const;
     
     /*
      * Mise à jour des sommets associés à la cellule (i, j)
@@ -95,7 +95,7 @@ public:
      * Mise à jour des couleurs associées à la cellule (i, j)
      */
     void colorCell(int i, int j, std::vector<QVector3D> &colors,
-                   ColorType type, int rangemin = 0, int rangemax = 359) const;
+                   ColorType type, bool isStreamArea = false, int rangemin = 0, int rangemax = 359) const;
 
     /*
      * Mise à jour des normales associées à la cellule (i, j)

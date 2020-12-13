@@ -152,7 +152,7 @@ QImage HeightField::colorHSV(int rangemin, int rangemax) const
     return image;
 }
 
-QImage HeightField::color() const
+QImage HeightField::color(bool isStreamArea) const
 {
     int i, j;
     vec3 v;
@@ -162,7 +162,7 @@ QImage HeightField::color() const
     for (i = 0; i < nx; ++i)
         for (j = 0; j < ny; ++j)
         {
-            v = getColor(i, j, 0, 255);
+            v = getColor(i, j, 0, 255, isStreamArea);
 
             color = QColor(v.r(), v.g(), v.b());
             image.setPixelColor(i, j, color);
@@ -250,11 +250,14 @@ vec3 HeightField::getColorHSV(int i, int j, double min, double max, int rangemin
     return vec3(color.red(), color.green(), color.blue()); // Normalisé entre 0 et 255
 }
 
-vec3 HeightField::getColor(int i, int j, double min, double max) const
+vec3 HeightField::getColor(int i, int j, double min, double max, bool isStreamArea) const
 {
     double v;
 
-    v = normalization(std::pow(height(i, j), 1.8), minHeight, maxHeight, min, max);
+    if (isStreamArea)
+        v = normalization(std::pow(height(i, j), 1.8), minHeight, maxHeight, min, max);
+    else
+        v = normalization(height(i, j), minHeight, maxHeight, min, max);
 
     return vec3(v, 0.0, max - v);
 }
@@ -277,7 +280,7 @@ void HeightField::vertexCell(int i, int j, std::vector<QVector3D> &vertices) con
 }
 
 void HeightField::colorCell(int i, int j, std::vector<QVector3D> &colors,
-                            ColorType type, int rangemin, int rangemax) const
+                            ColorType type, bool isStreamArea, int rangemin, int rangemax) const
 {
     vec3 v0, v1, v2, v3;
 
@@ -298,10 +301,10 @@ void HeightField::colorCell(int i, int j, std::vector<QVector3D> &colors,
         break;
 
     case Coloring:
-        v0 = getColor(i, j, 0.0, 1.0);
-        v1 = getColor(i + 1, j, 0.0, 1.0);
-        v2 = getColor(i + 1, j + 1, 0.0, 1.0);
-        v3 = getColor(i, j + 1, 0.0, 1.0);
+        v0 = getColor(i, j, 0.0, 1.0, isStreamArea);
+        v1 = getColor(i + 1, j, 0.0, 1.0, isStreamArea);
+        v2 = getColor(i + 1, j + 1, 0.0, 1.0, isStreamArea);
+        v3 = getColor(i, j + 1, 0.0, 1.0, isStreamArea);
         break;
 
     default:

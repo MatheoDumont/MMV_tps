@@ -299,7 +299,7 @@ void DisplayGLWidget::updateMeshTopology(HeightField hf)
 }
 
 void DisplayGLWidget::updateMeshColor(HeightField hf, HeightField::ColorType type,
-                                      int rangemin, int rangemax)
+                                      bool isStreamArea, int rangemin, int rangemax)
 {
     int i, j;
     
@@ -307,7 +307,7 @@ void DisplayGLWidget::updateMeshColor(HeightField hf, HeightField::ColorType typ
 
     for (i = 0; i < hf.getNX() - 1; ++i)
         for (j = 0; j < hf.getNY() - 1; ++j)
-            hf.colorCell(i, j, colors, type, rangemin, rangemax);
+            hf.colorCell(i, j, colors, type, isStreamArea, rangemin, rangemax);
 
     updateColorBuffer();
 }
