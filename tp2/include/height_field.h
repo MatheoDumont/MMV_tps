@@ -36,6 +36,14 @@ struct StreamAreaCell
     StreamAreaCell() {}
 };
 
+enum SpecificDisplay
+{
+    StreamArea,
+    StreamPower,
+    WetnessIndex,
+    Default,
+};
+
 class HeightField : public SF
 {
 public:
@@ -45,7 +53,7 @@ public:
         HSV,
         Coloring,
     };
-    
+
     enum StreamAreaFunc
     {
         D8,
@@ -60,8 +68,8 @@ public:
     HeightField(const QImage &image, const Box2D &box, double boundmin, double boundmax);
     HeightField(const HeightField &hf);
 
-    HeightField& operator=(const HeightField& rhs);
-    
+    HeightField &operator=(const HeightField &rhs);
+
     void setMinMaxBounds();
 
     double height(int i, int j) const;
@@ -73,8 +81,8 @@ public:
 
     QImage grayscale() const;
     QImage colorHSV(int rangemin, int rangemax) const;
-    QImage color(bool isStreamArea) const;
-    
+    QImage color(SpecificDisplay spec) const;
+
     QImage shade() const;
 
     void exportObj() const;
@@ -84,28 +92,28 @@ public:
 
     vec3 getGrayscale(int i, int j, double min, double max) const;
     vec3 getColorHSV(int i, int j, double min, double max, int rangemin, int rangemax) const;
-    vec3 getColor(int i, int j, double min, double max, bool isStreamArea) const;
-    
+    vec3 getColor(int i, int j, double min, double max, SpecificDisplay spec) const;
+
     /*
      * Mise à jour des sommets associés à la cellule (i, j)
      */
     void vertexCell(int i, int j, std::vector<QVector3D> &vertices) const;
-    
+
     /*
      * Mise à jour des couleurs associées à la cellule (i, j)
      */
     void colorCell(int i, int j, std::vector<QVector3D> &colors,
-                   ColorType type, bool isStreamArea = false, int rangemin = 0, int rangemax = 359) const;
+                   ColorType type, SpecificDisplay spec = Default, int rangemin = 0, int rangemax = 359) const;
 
     /*
      * Mise à jour des normales associées à la cellule (i, j)
      */
     void normalCell(int i, int j, std::vector<QVector3D> &normals) const;
-    
+
     void getMesh(double &maxHeight,
                  std::vector<QVector3D> &vertices,
                  std::vector<QVector3D> &colors,
-                 std::vector<QVector3D> &normals) const;    
+                 std::vector<QVector3D> &normals) const;
 
     std::vector<Point> getPoints() const;
 

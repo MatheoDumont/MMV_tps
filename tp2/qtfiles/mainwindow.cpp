@@ -62,7 +62,7 @@ void MainWindow::displayGL()
     /**
      * TODO: enlever paramètres en dur et mettre un sélecteur dans l'UI
      */
-    ui->openGL_viewer->updateMeshColor(hf_color, type, isStreamArea, 270, 330);
+    ui->openGL_viewer->updateMeshColor(hf_color, type, specificDisplay, 270, 330);
 
     ui->openGL_viewer->paintGL();
 }
@@ -83,7 +83,7 @@ void MainWindow::displayImage()
         break;
 
     case HeightField::ColorType::Coloring:
-        res = QPixmap::fromImage(hf_color.color(isStreamArea));
+        res = QPixmap::fromImage(hf_color.color(specificDisplay));
         break;
 
     default:
@@ -142,7 +142,7 @@ void MainWindow::on_StreamAreaD8_Button_clicked()
 {
     SF sf = hf_topology.streamArea(HeightField::StreamAreaFunc::D8);
     hf_color = HeightField(sf);
-    isStreamArea = true;
+    specificDisplay = StreamArea;
     display();
 }
 
@@ -150,7 +150,7 @@ void MainWindow::on_StreamAreaSteepestButton_clicked()
 {
     SF sf = hf_topology.streamArea(HeightField::StreamAreaFunc::Steepest);
     hf_color = HeightField(sf);
-    isStreamArea = true;
+    specificDisplay = StreamArea;
     display();
 }
 
@@ -158,7 +158,7 @@ void MainWindow::on_StreamPowerButton_clicked()
 {
     SF sf = hf_topology.streamPower();
     hf_color = HeightField(sf);
-    isStreamArea = false;
+    specificDisplay = StreamPower;
     display();
 }
 
@@ -166,7 +166,7 @@ void MainWindow::on_WetnessIndexButton_clicked()
 {
     SF sf = hf_topology.wetnessIndex();
     hf_color = HeightField(sf);
-    isStreamArea = false;
+    specificDisplay = WetnessIndex;
     display();
 }
 
