@@ -34,6 +34,8 @@ void MainWindow::on_boundsSpecified()
     image = QImage(filename);
     Box2D box(vec2(0.0), vec2(boxsize));
 
+    specificDisplay = Default;
+    
     hf_topology = HeightField(image, box, min, max);
     hf_color = HeightField(hf_topology);
 
