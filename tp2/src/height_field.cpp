@@ -262,7 +262,7 @@ vec3 HeightField::getColor(int i, int j, double min, double max, SpecificDisplay
 
     case StreamArea:
         v = normalization(std::pow(height(i, j), 1.8), minHeight, maxHeight, min, max);
-        break;
+        return vec3(v, 0, max - v);
 
     case StreamPower:
         v = clamp(minHeight*2, maxHeight, height(i, j));
@@ -398,9 +398,6 @@ float distance[8] = {1., sqrt_2, 1., sqrt_2, 1., sqrt_2, 1., sqrt_2};
 
 StreamAreaCell HeightField::d8(const Point &p) const
 {
-    // float diag = celldiagonal.length();
-    // float d[8] = {celldiagonal.x, diag, celldiagonal.y, diag, celldiagonal.x, diag, celldiagonal.y, diag};
-
     struct StreamAreaCell cell;
     for (int k = 0; k < 8; ++k)
     {
@@ -543,101 +540,3 @@ SF HeightField::wetnessIndex() const
 
     return result;
 }
-
-/**
- * Code du prof pour qu'on ait la logique
- */
-// int HeightField::CheckFlowSlope(const QPoint &p, QPoint *point, double *height, double *slope, double *nslope, int &mask) const
-// {
-//     int n = 0;
-//     double zp = at(p);
-//     double slopesum = 0.0;
-//     mask = 0;
-//     for (int i = 0; i < 8; i++)
-//     {
-//         QPoint b = p + Array2::next[i]; // Skip if point is not inside the domain
-//         if (!InsideVertexIndex(b.x(), b.y()))
-//             continue;
-//
-//         double step = at(b) - zp;
-//         if (step < 0.0)
-//         {
-//             point[n] = b;
-//             height[n] = -step;
-//             // lengsteepestth tableau de taille 8 de length des cell dans la 8-adjacence = [1, sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2)]
-//             slope[n] = -step / length[i];
-//             slopesum += slope[n];
-//             n++;
-//             mask |= 1 << i;
-//         }
-//     }
-//     // Relative slope
-//     for (int k = 0; k < n; k++)
-//         nslope[k] = slope[k] / slopesum;
-//
-//     return n;
-// }
-
-/*
-enfin, de ce que je m'en souviens, oui
-~~~~~~~~~~~~~~~~~~~~~~~~~
---------------------------
-oui alors
---------------------------
-non Mais
-----------------------------
-triter des terrains qui font 10 km, ca fait le job, pas besoinsd e plus de precision, voila Pour
-le calcul d'accessibilite
---------------------------
-pas tres tres difficile, ya une seule fonciton qui peut retenir notre attention veritablement
-calcul de la constante de lipschitz
-et comment je calcul l'intersection et le terrain
-vous avez vu quand on a fait le prmier tp avec le shahder je peux reprenseter le terrain
-avec f(x, y) =0
-donc je considere mon terrain comme un surface implicite, et on fait un spheretracing
-donc la constante de lipschitz pour notre fonction c'est ... x) Tintintin
-...
-je vous rappelle que ici on travail avec une surface d'elevation z = h(x, y)
-f(x,y,z) = z - h(x,y)
-distance bound slide 21 implicit modeling
-µ = sqrt(1 + lambda*lambda)
-
-si on a un terrain definit par une grille d'elevation, qu'elle est la borne de ce machin la:
-on a plus qu'a trouver la fonction mu et c'est gagner => bonne question de fdp RIP nous
-
-f/mu c'est un distancebound et lambda lipschitz de h
-f est un scalarfield qui a une seule Propriété de borne
-distancebound = fonction telle que b minor la distance euclidienne
-f/mu minor est bien une distancebound
-
-on a une grille d'echantillon, comment calculer le lambda de h :
-le max de toutes les diffs de pentes adjacentes
-Pour toutes les pentes : max(pente) = lambda
-pour chqaue pts, calculer la plus grande pente avec les 8 voisins et calculer le sup de tout ca. et c'est fini
-
-double SF::K() const
-{
-  double k = 0.;
-
-  for (int i = 0; i < nx : i++)
-    for (int j = 0; j < ny; ++j)
-        k = math::max(k, gradient(i,j).length());
-
-  return k;
-}
-
-l'intersect :
-on l'a dans les shader : on doit reconnaitre en gros le coeur du sphere dans le raymarching (jai la photo): Noice
-
-quetion : souvent ce qu'on veut faire pour un terrain a une cerataine position : on veut approximer l'eclairement,
-comment est ce que les differents pts du terrain sont ensoleilles au cours de l'annee.
-Qu'est ce qu'il faudrait faire pour calculer l'ensoleillement moyen dans l'annee :
-je sais pas
-on fait des releves puis grosse moyenne
-
-
-E(p) = somme sur tous les jour, de la somme sur toutes les heures de l'ensoleillement au point p,
-puisque la position soleil s varie en fonction de l'heure et du jour.
-s est fonction du jour, de l'heure et et et ? de la latitude et longitude.
-ya des codes pour connaitre ca, et faire une jolie map
-*/

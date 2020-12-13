@@ -83,25 +83,11 @@ vec2 SF::clamp(const vec2 &) const
     return vec2(); // TODO
 }
 
-// const double mask_smooth[9] = {0.1111, 0.1111, 0.1111,
-//                                0.1111, 0.1111, 0.1111,
-//                                0.1111, 0.1111, 0.1111};
-
-// const double mask_smooth[3][3] = {{0.1111111, 0.1111111, 0.1111111},
-//                                   {0.1111111, 0.1111111, 0.1111111},
-//                                   {0.1111111, 0.1111111, 0.1111111}};
 const double mask_smooth[5][5] = {{0.04, 0.04, 0.04, 0.04, 0.04},
                                   {0.04, 0.04, 0.04, 0.04, 0.04},
                                   {0.04, 0.04, 0.04, 0.04, 0.04},
                                   {0.04, 0.04, 0.04, 0.04, 0.04},
                                   {0.04, 0.04, 0.04, 0.04, 0.04}};
-// const double mask_blur[9] = {0.05854983, 0.09653235, 0.05854983,
-//                              0.09653235, 0.15915494, 0.09653235,
-//                              0.05854983, 0.09653235, 0.05854983};
-
-// const double mask_blur[3][3] = {{0.05854983, 0.09653235, 0.05854983},
-//                                 {0.09653235, 0.15915494, 0.09653235},
-//                                 {0.05854983, 0.09653235, 0.05854983}};
 
 const double mask_blur[5][5] = {{0.00291502, 0.01306423, 0.02153928, 0.01306423, 0.00291502},
                                 {0.01306423, 0.05854983, 0.09653235, 0.05854983, 0.01306423},
@@ -134,10 +120,6 @@ SF SF::filter(const SF &sf, FilterType t)
 
     switch (t)
     {
-    /**
-     * TODO: corriger le Smooth
-     *         - ne donne que des 'nan'
-     */
     case FilterType::Smooth:
         applyFilter(sf, sf_filtered, mask_smooth);
         break;
@@ -149,8 +131,6 @@ SF SF::filter(const SF &sf, FilterType t)
     default:
         break;
     }
-    // for (auto i : sf_filtered.field)
-    //     std::cout << i << std::endl;
 
     return sf_filtered;
 }
