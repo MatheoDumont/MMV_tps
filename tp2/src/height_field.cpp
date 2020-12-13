@@ -265,11 +265,13 @@ vec3 HeightField::getColor(int i, int j, double min, double max, SpecificDisplay
         break;
 
     case StreamPower:
-        v = normalization(std::pow(height(i, j), 3.5), minHeight, maxHeight, min, max);
+        v = clamp(minHeight*2, maxHeight, height(i, j));
+        v = std::pow(v, 4.0);
+        v = normalization(v, minHeight, maxHeight, min, max);
         break;
 
     case WetnessIndex:
-        v = clamp(0., (minHeight + maxHeight) / 20, height(i, j));
+        v = clamp(0., (minHeight + maxHeight) / 10, height(i, j));
         v = std::pow(v, 4.);
         v = normalization(v, minHeight, maxHeight, min, max);
         break;
@@ -279,7 +281,7 @@ vec3 HeightField::getColor(int i, int j, double min, double max, SpecificDisplay
         break;
     }
 
-    return vec3(v, 0.0, max - v);
+    return vec3(v, 0.0, max/10);
 }
 
 void HeightField::vertexCell(int i, int j, std::vector<QVector3D> &vertices) const
@@ -531,7 +533,7 @@ SF HeightField::streamPower() const
 SF HeightField::wetnessIndex() const
 {
     // ln(𝐴𝐴)/(𝑠𝑠+𝜀𝜀)
-    double epsilon = 0.00001;
+    double epsilon = 0.001;
     SF stream = streamArea(D8);
     SF slope = slopeMap();
     SF result(Grid(*this));
