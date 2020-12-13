@@ -52,6 +52,10 @@ private slots:
     void displayImage();
     void displayGL();
 
+    void on_StreamPowerButton_clicked();
+
+    void on_WetnessIndexButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 

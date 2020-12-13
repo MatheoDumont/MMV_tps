@@ -40,25 +40,25 @@ HeightField::HeightField(const QImage &image, const Box2D &box,
 HeightField::HeightField(const HeightField &hf)
     : SF(hf), minHeight(hf.minHeight), maxHeight(hf.maxHeight) {}
 
-HeightField& HeightField::operator=(const HeightField& rhs)
+HeightField &HeightField::operator=(const HeightField &rhs)
 {
     if (this != &rhs)
     {
         a = rhs.a;
         b = rhs.b;
         diagonal = rhs.diagonal;
-        
+
         nx = rhs.nx;
         ny = rhs.ny;
         celldiagonal = rhs.celldiagonal;
         inversecelldiagonal = rhs.inversecelldiagonal;
-        
+
         field = rhs.field;
 
         minHeight = rhs.minHeight;
         maxHeight = rhs.maxHeight;
     }
-    
+
     return *this;
 }
 
@@ -130,7 +130,7 @@ QImage HeightField::grayscale() const
             color = QColor(v.r(), v.g(), v.b());
             image.setPixelColor(i, j, color);
         }
-    
+
     return image;
 }
 
@@ -230,7 +230,7 @@ vec3 HeightField::getGrayscale(int i, int j, double min, double max) const
     double val;
 
     val = normalization(height(i, j), minHeight, maxHeight, min, max);
-    
+
     return vec3(val, val, val);
 }
 
@@ -254,7 +254,7 @@ vec3 HeightField::getColor(int i, int j, double min, double max) const
 {
     double v;
 
-    v = normalization(height(i, j), minHeight, maxHeight, min, max);
+    v = normalization(std::pow(height(i, j), 1.8), minHeight, maxHeight, min, max);
 
     return vec3(v, 0.0, max - v);
 }
@@ -439,7 +439,7 @@ StreamAreaCell HeightField::steepest(const Point &p) const
     return cell;
 }
 
-SF HeightField::drainage(StreamAreaFunc function) const
+SF HeightField::streamArea(StreamAreaFunc function) const
 {
     // 3 etapes :
     // 1. trier tous les points Pij selon Zij, leurs hauteur -> tableau T (trié)
@@ -489,6 +489,34 @@ SF HeightField::drainage(StreamAreaFunc function) const
     }
 
     return sf;
+}
+
+SF HeightField::streamPower() const
+{
+
+    SF stream = streamArea(D8);
+    SF slope = slopeMap();
+    SF result(Grid(*this));
+
+    for (int i = 0; i < nx - 1; ++i)
+        for (int j = 0; j < ny - 1; ++j)
+            result.at(i, j) = sqrt(stream.at(i, j)) * slope.at(i, j);
+
+    return result;
+}
+
+SF HeightField::wetnessIndex() const
+{
+    // ln(𝐴𝐴)/(𝑠𝑠+𝜀𝜀)
+    double epsilon = 0.0001;
+    SF stream = streamArea(D8);
+    SF slope = slopeMap();
+    SF result(Grid(*this));
+    for (int i = 0; i < nx - 1; ++i)
+        for (int j = 0; j < ny - 1; ++j)
+            result.at(i, j) = std::log(stream.at(i, j)) / (slope.at(i, j) + epsilon);
+
+    return result;
 }
 
 /**

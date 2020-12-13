@@ -118,7 +118,9 @@ public:
      * 0 : D8, l'eau coule de facon pondere en fonction des pentes
      * 1 : steepest, l'eau coule a 100% vers le plus bas
      */
-    SF drainage(StreamAreaFunc function) const;
+    SF streamArea(StreamAreaFunc function) const;
+    SF streamPower() const;
+    SF wetnessIndex() const;
 };
 
 #endif

@@ -63,32 +63,32 @@ void MainWindow::displayGL()
      * TODO: enlever paramètres en dur et mettre un sélecteur dans l'UI
      */
     ui->openGL_viewer->updateMeshColor(hf_color, type, 270, 330);
-    
+
     ui->openGL_viewer->paintGL();
 }
 
 void MainWindow::displayImage()
 {
     QPixmap res;
-    
+
     switch (this->type)
     {
     case HeightField::ColorType::Grayscale:
         std::cout << "Gray" << std::endl;
         res = QPixmap::fromImage(hf_color.grayscale());
         break;
-        
+
     case HeightField::ColorType::HSV:
         // TODO enlever parametres en dur et mettre un selecteur dans ui
         std::cout << "HSV" << std::endl;
         res = QPixmap::fromImage(hf_color.colorHSV(270, 330));
         break;
-        
+
     case HeightField::ColorType::Coloring:
         std::cout << "Coloring" << std::endl;
         res = QPixmap::fromImage(hf_color.color());
         break;
-        
+
     default:
         break;
     }
@@ -143,14 +143,28 @@ void MainWindow::on_action3D_model_triggered()
 
 void MainWindow::on_StreamAreaD8_Button_clicked()
 {
-    SF sf = hf_topology.drainage(HeightField::StreamAreaFunc::D8);
+    SF sf = hf_topology.streamArea(HeightField::StreamAreaFunc::D8);
     hf_color = HeightField(sf);
     display();
 }
 
 void MainWindow::on_StreamAreaSteepestButton_clicked()
 {
-    SF sf = hf_topology.drainage(HeightField::StreamAreaFunc::Steepest);
+    SF sf = hf_topology.streamArea(HeightField::StreamAreaFunc::Steepest);
+    hf_color = HeightField(sf);
+    display();
+}
+
+void MainWindow::on_StreamPowerButton_clicked()
+{
+    SF sf = hf_topology.streamPower();
+    hf_color = HeightField(sf);
+    display();
+}
+
+void MainWindow::on_WetnessIndexButton_clicked()
+{
+    SF sf = hf_topology.wetnessIndex();
     hf_color = HeightField(sf);
     display();
 }

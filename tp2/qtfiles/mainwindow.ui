@@ -141,6 +141,20 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="StreamPowerButton">
+          <property name="text">
+           <string>StreamPower</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="WetnessIndexButton">
+          <property name="text">
+           <string>Wetness Index</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>

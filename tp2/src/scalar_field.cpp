@@ -90,11 +90,11 @@ vec2 SF::clamp(const vec2 &) const
 // const double mask_smooth[3][3] = {{0.1111111, 0.1111111, 0.1111111},
 //                                   {0.1111111, 0.1111111, 0.1111111},
 //                                   {0.1111111, 0.1111111, 0.1111111}};
-const double mask_smooth[5][5] = {{0.1111111, 0.1111111, 0.1111111, 0.1111111, 0.1111111},
-                                  {0.1111111, 0.1111111, 0.1111111, 0.1111111, 0.1111111},
-                                  {0.1111111, 0.1111111, 0.1111111, 0.1111111, 0.1111111},
-                                  {0.1111111, 0.1111111, 0.1111111, 0.1111111, 0.1111111},
-                                  {0.1111111, 0.1111111, 0.1111111, 0.1111111, 0.1111111}};
+const double mask_smooth[5][5] = {{0.04, 0.04, 0.04, 0.04, 0.04},
+                                  {0.04, 0.04, 0.04, 0.04, 0.04},
+                                  {0.04, 0.04, 0.04, 0.04, 0.04},
+                                  {0.04, 0.04, 0.04, 0.04, 0.04},
+                                  {0.04, 0.04, 0.04, 0.04, 0.04}};
 // const double mask_blur[9] = {0.05854983, 0.09653235, 0.05854983,
 //                              0.09653235, 0.15915494, 0.09653235,
 //                              0.05854983, 0.09653235, 0.05854983};
@@ -103,26 +103,28 @@ const double mask_smooth[5][5] = {{0.1111111, 0.1111111, 0.1111111, 0.1111111, 0
 //                                 {0.09653235, 0.15915494, 0.09653235},
 //                                 {0.05854983, 0.09653235, 0.05854983}};
 
-const double mask_blur[5][5] = {{0.01463746, 0.02129738, 0.02413309, 0.02129738, 0.01463746},
-                                {0.02129738, 0.0309875, 0.03511344, 0.0309875, 0.02129738},
-                                {0.02413309, 0.03511344, 0.03978874, 0.03511344, 0.02413309},
-                                {0.02129738, 0.0309875, 0.03511344, 0.0309875, 0.02129738},
-                                {0.01463746, 0.02129738, 0.02413309, 0.02129738, 0.01463746}};
+const double mask_blur[5][5] = {{0.00291502, 0.01306423, 0.02153928, 0.01306423, 0.00291502},
+                                {0.01306423, 0.05854983, 0.09653235, 0.05854983, 0.01306423},
+                                {0.02153928, 0.09653235, 0.15915494, 0.09653235, 0.02153928},
+                                {0.01306423, 0.05854983, 0.09653235, 0.05854983, 0.01306423},
+                                {0.00291502, 0.01306423, 0.02153928, 0.01306423, 0.00291502}};
 const int mask_radius = 2;
 const int mask_size = mask_radius * 2 + 1;
 
-void applyMask(const SF &sf, SF &sf_filtered, int i, int j, const double mask[mask_size][mask_size], int mask_radius)
+double applyMask(const SF &sf, int i, int j, const double mask[mask_size][mask_size])
 {
+    double k = 00;
     for (int ii = -mask_radius; ii < mask_radius + 1; ++ii)
         for (int jj = -mask_radius; jj < mask_radius + 1; ++jj)
-            sf_filtered.at(i + ii, j + jj) += mask[ii + 1][jj + 1] * sf.at(i + ii, j + jj);
+            k += mask[ii + mask_radius][jj + mask_radius] * sf.at(i + ii, j + jj);
+    return k;
 }
 
-void applyFilter(const SF &sf, SF &sf_filtered, const double mask[mask_size][mask_size], int mask_radius = 2)
+void applyFilter(const SF &sf, SF &sf_filtered, const double mask[mask_size][mask_size])
 {
     for (int i = mask_radius; i < sf_filtered.getNX() - mask_radius; ++i)
         for (int j = mask_radius; j < sf_filtered.getNY() - mask_radius; ++j)
-            applyMask(sf, sf_filtered, i, j, mask, mask_radius);
+            sf_filtered.at(i, j) = applyMask(sf, i, j, mask);
 }
 
 SF SF::filter(const SF &sf, FilterType t)
@@ -139,14 +141,16 @@ SF SF::filter(const SF &sf, FilterType t)
     case FilterType::Smooth:
         applyFilter(sf, sf_filtered, mask_smooth);
         break;
-        
+
     case FilterType::Blur:
         applyFilter(sf, sf_filtered, mask_blur);
         break;
-        
+
     default:
         break;
     }
-    
+    // for (auto i : sf_filtered.field)
+    //     std::cout << i << std::endl;
+
     return sf_filtered;
 }
