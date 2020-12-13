@@ -256,6 +256,10 @@ vec3 HeightField::getColor(int i, int j, double min, double max, SpecificDisplay
 
     switch (spec)
     {
+    case Default:
+        v = normalization(height(i, j), minHeight, maxHeight, min, max);
+        break;
+
     case StreamArea:
         v = normalization(std::pow(height(i, j), 1.8), minHeight, maxHeight, min, max);
         break;
@@ -265,7 +269,9 @@ vec3 HeightField::getColor(int i, int j, double min, double max, SpecificDisplay
         break;
 
     case WetnessIndex:
-        v = normalization(std::pow(clamp(0., (minHeight + maxHeight) / 20, height(i, j)), 1.), minHeight, maxHeight, min, max);
+        v = clamp(0., (minHeight + maxHeight) / 20, height(i, j));
+        v = std::pow(v, 4.);
+        v = normalization(v, minHeight, maxHeight, min, max);
         break;
 
     default:
@@ -525,7 +531,7 @@ SF HeightField::streamPower() const
 SF HeightField::wetnessIndex() const
 {
     // ln(𝐴𝐴)/(𝑠𝑠+𝜀𝜀)
-    double epsilon = 0.0001;
+    double epsilon = 0.00001;
     SF stream = streamArea(D8);
     SF slope = slopeMap();
     SF result(Grid(*this));
