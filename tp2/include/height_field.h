@@ -19,7 +19,7 @@ struct Point
 
     bool operator<(const Point &p) const
     {
-        return height < p.height;
+        return height > p.height;
     }
 };
 

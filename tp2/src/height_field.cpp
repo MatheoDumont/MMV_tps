@@ -261,18 +261,20 @@ vec3 HeightField::getColor(int i, int j, double min, double max, SpecificDisplay
         break;
 
     case StreamArea:
-        v = normalization(std::pow(height(i, j), 1.8), minHeight, maxHeight, min, max);
-        return vec3(v, 0, max - v);
+        v = clamp(minHeight * 1.5, maxHeight, height(i, j));
+        v = std::pow(v, 1.5);
+        v = normalization(v, minHeight, maxHeight, min, max);
+        break;
 
     case StreamPower:
-        v = clamp(minHeight*2, maxHeight, height(i, j));
-        v = std::pow(v, 4.0);
+        v = clamp(minHeight * 3, maxHeight, height(i, j));
+        v = std::pow(v, 2.5);
         v = normalization(v, minHeight, maxHeight, min, max);
         break;
 
     case WetnessIndex:
-        v = clamp(0., (minHeight + maxHeight) / 10, height(i, j));
-        v = std::pow(v, 4.);
+        v = clamp(minHeight, (minHeight + maxHeight) / 10, height(i, j));
+        v = std::pow(v, 2.2);
         v = normalization(v, minHeight, maxHeight, min, max);
         break;
 
@@ -399,23 +401,35 @@ float distance[8] = {1., sqrt_2, 1., sqrt_2, 1., sqrt_2, 1., sqrt_2};
 StreamAreaCell HeightField::d8(const Point &p) const
 {
     struct StreamAreaCell cell;
+    // std::cout << "n : " << cell.n << std::endl
+    //           << "sum slope : " << cell.sum_slope << std::endl;
     for (int k = 0; k < 8; ++k)
     {
         int i = p.i + next[k].first;
         int j = p.j + next[k].second;
 
+        // std::cout << "[" << k << "]  "
+        //           << "i : " << i << ", j : " << j << std::endl;
+
         if (inside(i, j))
         {
             double diff_height = p.height - height(i, j);
+            // std::cout << "inside "
+            //           << "diff : " << diff_height << std::endl;
+
             if (diff_height > 0.0)
             {
+
                 cell.slopes[cell.n] = diff_height / distance[k];
                 cell.sum_slope += cell.slopes[cell.n];
                 cell.points[cell.n] = Point(i, j);
                 cell.n++;
+                // std::cout << " in " << std::endl
+                //           << cell.n << ", " << cell.sum_slope << std::endl;
             }
         }
     }
+
     return cell;
 }
 
@@ -468,6 +482,8 @@ SF HeightField::streamArea(StreamAreaFunc function) const
     //      trie => std::sort (il faut une structure pour le faire selon z)
     std::vector<Point> points = getPoints();
     std::sort(points.begin(), points.end());
+    // for(auto i : points)
+    //     std::cout << i.i << ", " << i.j << ", " << i.height << std::endl;
 
     // 2. initialiser un SF a (aire de drainage) de la taile qui va bien (nx, ny) avec 1.0 dedans pour chaque point.
     SF sf = SF(*this);
@@ -496,7 +512,12 @@ SF HeightField::streamArea(StreamAreaFunc function) const
             StreamAreaCell cell = d8(p);
 
             for (int i = 0; i < cell.n; ++i)
-                sf.at(cell.points[i].i, cell.points[i].j) += (sf.at(p.i, p.j) * cell.slopes[i]) / cell.sum_slope;
+            {
+                // std::cout << i << std::endl
+                //           << cell.points[i].i << ", " << cell.points[i].j << std::endl;
+                sf.at(cell.points[i].i, cell.points[i].j) += sf.at(p.i, p.j) * cell.slopes[i] / cell.sum_slope;
+            }
+            // exit(0);
         }
     }
     else if (function == Steepest)
