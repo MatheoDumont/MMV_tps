@@ -1,6 +1,6 @@
 #ifndef ROAD_H
 #define ROAD_H
-
+// https://perso.liris.cnrs.fr/eric.galin/Articles/2010-roads.pdf
 #include "height_field.h"
 #include <iostream>
 #include <vector>
