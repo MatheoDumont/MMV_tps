@@ -1,4 +1,4 @@
-# TP 2 de Modelisation de Monde Virtuel
+# TPs. Modelisation de Monde Virtuel
 Avec Jean-Baptiste Loutfalla et Matheo Dumont.
 
-Notre rapport se trouve [ici](./rapport.pdf).
+* Rapport pour le tp 2 [ici](./tp2/rapport.pdf)
