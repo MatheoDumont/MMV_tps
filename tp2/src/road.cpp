@@ -11,20 +11,69 @@
 #include <utility> // for pair
 #include <algorithm>
 #include <iterator>
-// https://rosettacode.org/wiki/Dijkstra%27s_algorithm#C.2B.2B
 
+const weight_t max_weight = std::numeric_limits<double>::infinity();
 
-void DijkstraComputePaths(vertex_t source,
-                          const adjacency_list_t &adjacency_list,
-                          std::vector<weight_t> &min_distance,
-                          std::vector<vertex_t> &previous)
+Road::Road(const HeightField &hf, int _k) : HeightField(hf), k(_k) {}
+
+std::list<std::pair<int, int>> Road::compute(vertex_t source)
 {
-    int n = adjacency_list.size();
+    std::vector<weight_t> min_distance;
+    std::vector<vertex_t> previous;
+    DijkstraComputePaths(source, min_distance, previous);
+
+    vertex_t vertex = source;
+    std::list<std::pair<int, int>> path;
+    for (; vertex != -1; vertex = previous[vertex])
+        path.push_front(inverseIndex(vertex));
+    return path;
+}
+
+double Road::slope_transfer(double s)
+{
+    if (s > max_slope)
+        return max_weight;
+    return s;
+}
+
+std::vector<neighbor> Road::connexity(vertex_t u)
+{
+    std::pair<int, int> p = inverseIndex(u);
+    int i = p.first, j = p.second;
+    std::vector<neighbor> neighbors;
+    neighbors.resize(k * k);
+
+    for (int ii = -k; ii < k + 1; ++ii)
+        for (int jj = -k; jj < k + 1; ++jj)
+        {
+            int ki = i + ii;
+            int kj = j + jj;
+            if (inside(ki, kj) == true)
+            {
+                weight_t w = 1.0;
+                w += slope_transfer(slope(ki, kj));
+                neighbors.push_back(neighbor(index(ki, kj), w));
+            }
+        }
+
+    return neighbors;
+}
+
+// typedef std::vector<std::vector<neighbor>> adjacency_list_t;
+typedef std::pair<weight_t, vertex_t> weight_vertex_pair_t;
+
+void Road::DijkstraComputePaths(vertex_t source,
+                                std::vector<weight_t> &min_distance,
+                                std::vector<vertex_t> &previous)
+{
+    // int n = adjacency_list.size();
+    int n = nx * ny;
     min_distance.clear();
     min_distance.resize(n, max_weight);
     min_distance[source] = 0;
     previous.clear();
     previous.resize(n, -1);
+
     // we use greater instead of less to turn max-heap into min-heap
     std::priority_queue<weight_vertex_pair_t,
                         std::vector<weight_vertex_pair_t>,
@@ -45,7 +94,9 @@ void DijkstraComputePaths(vertex_t source,
             continue;
 
         // Visit each edge exiting u
-        const std::vector<neighbor> &neighbors = adjacency_list[u];
+        // const std::vector<neighbor> &neighbors = adjacency_list[u];
+        std::vector<neighbor> neighbors = connexity(u);
+
         for (std::vector<neighbor>::const_iterator neighbor_iter = neighbors.begin();
              neighbor_iter != neighbors.end();
              neighbor_iter++)
@@ -63,14 +114,14 @@ void DijkstraComputePaths(vertex_t source,
     }
 }
 
-std::list<vertex_t> DijkstraGetShortestPathTo(
-    vertex_t vertex, const std::vector<vertex_t> &previous)
-{
-    std::list<vertex_t> path;
-    for (; vertex != -1; vertex = previous[vertex])
-        path.push_front(vertex);
-    return path;
-}
+// std::list<vertex_t> Road::DijkstraGetShortestPathTo(
+//     vertex_t vertex, const std::vector<vertex_t> &previous)
+// {
+//     std::list<vertex_t> path;
+//     for (; vertex != -1; vertex = previous[vertex])
+//         path.push_front(vertex);
+//     return path;
+// }
 
 // int main()
 // {

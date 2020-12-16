@@ -17,6 +17,7 @@ public:
     Grid(const Box2D &box, int _nx, int _ny);
 
     int index(int i, int j) const;
+    std::pair<int, int> inverseIndex(int x) const;
     bool inside(int i, int j) const;
     bool border(int i, int j) const;
     vec2 vertex(int i, int j) const;

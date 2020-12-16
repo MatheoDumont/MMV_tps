@@ -1,6 +1,7 @@
 #ifndef ROAD_H
 #define ROAD_H
 
+#include "height_field.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -16,20 +17,17 @@
 typedef int vertex_t;
 typedef double weight_t;
 
-const weight_t max_weight = std::numeric_limits<double>::infinity();
-
 struct neighbor
 {
     vertex_t target;
     weight_t weight;
+
     neighbor(vertex_t arg_target, weight_t arg_weight)
         : target(arg_target), weight(arg_weight) {}
 };
 
-typedef std::vector<std::vector<neighbor>> adjacency_list_t;
-typedef std::pair<weight_t, vertex_t> weight_vertex_pair_t;
-
-class Road
+const double max_slope = 50.0;
+class Road : public HeightField
 {
 private:
     // https://perso.liris.cnrs.fr/eric.galin/Articles/2010-roads.pdf#section.5
@@ -50,10 +48,20 @@ protected:
      *  f o t(p, p`, p``) avec f une fonction de transfere,
      *   p la position du voisin, p` sa pente et p`` sa courbure.
      */
-    std::vector<neighbor> connexity();
+    std::vector<neighbor> connexity(vertex_t u);
+
+    // https://rosettacode.org/wiki/Dijkstra%27s_algorithm#C.2B.2B
+    void DijkstraComputePaths(vertex_t source,
+                              std::vector<weight_t> &min_distance,
+                              std::vector<vertex_t> &previous);
+
+    std::list<vertex_t> DijkstraGetShortestPathTo(
+        vertex_t vertex, const std::vector<vertex_t> &previous);
+
+    std::list<std::pair<int, int>> compute(vertex_t source);
 
 public:
-    Road(/* args */);
+    Road(const HeightField &hf, int k);
     // ~Road();
 };
 

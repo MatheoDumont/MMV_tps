@@ -5,7 +5,7 @@ Grid::Grid(const Box2D &box, int _nx, int _ny) : Box2D(box), nx(_nx), ny(_ny)
 {
     celldiagonal = vec2(diagonal.x / double(nx - 1),
                         diagonal.y / double(ny - 1));
-    
+
     inversecelldiagonal = vec2(1.0 / celldiagonal.x,
                                1.0 / celldiagonal.y);
 }
@@ -13,6 +13,11 @@ Grid::Grid(const Box2D &box, int _nx, int _ny) : Box2D(box), nx(_nx), ny(_ny)
 int Grid::index(int i, int j) const
 {
     return i + j * nx;
+}
+
+std::pair<int, int> Grid::inverseIndex(int x) const
+{
+    return {x % nx, x / nx};
 }
 
 bool Grid::inside(int i, int j) const
