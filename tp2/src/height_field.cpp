@@ -401,22 +401,17 @@ float distance[8] = {1., sqrt_2, 1., sqrt_2, 1., sqrt_2, 1., sqrt_2};
 StreamAreaCell HeightField::d8(const Point &p) const
 {
     struct StreamAreaCell cell;
-    // std::cout << "n : " << cell.n << std::endl
-    //           << "sum slope : " << cell.sum_slope << std::endl;
+
     for (int k = 0; k < 8; ++k)
     {
         int i = p.i + next[k].first;
         int j = p.j + next[k].second;
 
-        // std::cout << "[" << k << "]  "
-        //           << "i : " << i << ", j : " << j << std::endl;
-
+        
         if (inside(i, j))
         {
             double diff_height = p.height - height(i, j);
-            // std::cout << "inside "
-            //           << "diff : " << diff_height << std::endl;
-
+           
             if (diff_height > 0.0)
             {
 
@@ -424,8 +419,7 @@ StreamAreaCell HeightField::d8(const Point &p) const
                 cell.sum_slope += cell.slopes[cell.n];
                 cell.points[cell.n] = Point(i, j);
                 cell.n++;
-                // std::cout << " in " << std::endl
-                //           << cell.n << ", " << cell.sum_slope << std::endl;
+                
             }
         }
     }
@@ -536,7 +530,6 @@ SF HeightField::streamArea(StreamAreaFunc function) const
 
 SF HeightField::streamPower() const
 {
-
     SF stream = streamArea(D8);
     SF slope = slopeMap();
     SF result(Grid(*this));
