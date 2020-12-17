@@ -22,8 +22,13 @@ struct neighbor
     vertex_t target;
     weight_t weight;
 
+    neighbor() {}
     neighbor(vertex_t arg_target, weight_t arg_weight)
         : target(arg_target), weight(arg_weight) {}
+
+    neighbor(const neighbor &n) : target(n.target), weight(n.weight) {}
+
+    neighbor& operator=(const neighbor &rhs);
 };
 
 const double max_slope = 50.0;

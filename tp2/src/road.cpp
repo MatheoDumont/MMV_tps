@@ -14,6 +14,17 @@
 
 const weight_t max_weight = std::numeric_limits<double>::infinity();
 
+neighbor& neighbor::operator=(const neighbor &rhs)
+{
+    if (this != &rhs)
+    {
+        target = rhs.target;
+        weight = rhs.target;
+    }
+
+    return *this;
+}
+
 Road::Road(const HeightField &hf, int _k) : HeightField(hf), k(_k) {}
 
 std::list<std::pair<int, int>> Road::compute(vertex_t source)
