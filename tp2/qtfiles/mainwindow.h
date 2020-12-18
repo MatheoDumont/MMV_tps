@@ -7,6 +7,7 @@
 
 #include "bounddialog.h"
 #include "height_field.h"
+#include "road.h"
 
 namespace Ui
 {
@@ -55,6 +56,8 @@ private slots:
     void on_StreamPowerButton_clicked();
 
     void on_WetnessIndexButton_clicked();
+
+    void on_RoadAction_clicked();
 
 private:
     Ui::MainWindow *ui;

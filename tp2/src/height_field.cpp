@@ -331,6 +331,14 @@ void HeightField::colorCell(int i, int j, std::vector<QVector3D> &colors,
         v3 = getColor(i, j + 1, 0.0, 1.0, spec);
         break;
 
+    case Red:
+        vec3 red = vec3(1., 0., 0.);
+        v0 = red;
+        v1 = red;
+        v2 = red;
+        v3 = red;
+        break;
+
     default:
         break;
     }

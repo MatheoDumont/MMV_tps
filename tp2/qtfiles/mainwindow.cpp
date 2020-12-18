@@ -35,7 +35,7 @@ void MainWindow::on_boundsSpecified()
     Box2D box(vec2(0.0), vec2(boxsize));
 
     specificDisplay = Default;
-    
+
     hf_topology = HeightField(image, box, min, max);
     hf_color = HeightField(hf_topology);
 
@@ -204,4 +204,11 @@ void MainWindow::on_bluring_clicked()
     hf_topology = HeightField(sf);
     hf_color = HeightField(hf_topology);
     display();
+}
+
+void MainWindow::on_RoadAction_clicked()
+{
+    Road r = Road(hf_topology, 2);
+    std::list<std::pair<int,int>> path = r.compute({0, 0}, {hf_topology.getNX() - 1, hf_topology.getNY() - 1});
+    // r.drawLine(hf_topology.maxHeight, ) TODO
 }

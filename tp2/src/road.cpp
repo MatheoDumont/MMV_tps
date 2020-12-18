@@ -27,13 +27,14 @@ neighbor& neighbor::operator=(const neighbor &rhs)
 
 Road::Road(const HeightField &hf, int _k) : HeightField(hf), k(_k) {}
 
-std::list<std::pair<int, int>> Road::compute(vertex_t source)
+std::list<std::pair<int, int>> Road::compute(std::pair<int, int> source, std::pair<int, int> dest)
 {
+    vertex_t src = index(source.first, source.second);
     std::vector<weight_t> min_distance;
     std::vector<vertex_t> previous;
-    DijkstraComputePaths(source, min_distance, previous);
+    DijkstraComputePaths(src, min_distance, previous);
 
-    vertex_t vertex = source;
+    vertex_t vertex = index(dest.first, dest.second);
     std::list<std::pair<int, int>> path;
     for (; vertex != -1; vertex = previous[vertex])
         path.push_front(inverseIndex(vertex));
@@ -125,6 +126,16 @@ void Road::DijkstraComputePaths(vertex_t source,
     }
 }
 
+void Road::drawLine(double &maxHeight,
+                    std::vector<QVector3D> &vertices,
+                    std::vector<QVector3D> &colors,
+                    std::vector<QVector3D> &normals,
+                    std::list<std::pair<int, int>> path) const
+{
+    getMesh(maxHeight, vertices, colors, normals);
+    for (auto pair : path)
+        colorCell(pair.first, pair.second, colors, ColorType::Red);
+}
 // std::list<vertex_t> Road::DijkstraGetShortestPathTo(
 //     vertex_t vertex, const std::vector<vertex_t> &previous)
 // {

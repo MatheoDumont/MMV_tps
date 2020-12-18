@@ -63,7 +63,13 @@ protected:
     std::list<vertex_t> DijkstraGetShortestPathTo(
         vertex_t vertex, const std::vector<vertex_t> &previous);
 
-    std::list<std::pair<int, int>> compute(vertex_t source);
+    std::list<std::pair<int, int>> compute(std::pair<int,int> source,std::pair<int,int> dest); //vertex_t source
+
+    void drawLine(double &maxHeight,
+                  std::vector<QVector3D> &vertices,
+                  std::vector<QVector3D> &colors,
+                  std::vector<QVector3D> &normals,
+                  std::list<std::pair<int, int>> path) const;
 
 public:
     Road(const HeightField &hf, int k);

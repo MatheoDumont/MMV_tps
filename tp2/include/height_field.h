@@ -52,6 +52,7 @@ public:
         Grayscale,
         HSV,
         Coloring,
+        Red,
     };
 
     enum StreamAreaFunc
