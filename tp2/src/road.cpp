@@ -73,6 +73,11 @@ std::list<vertex_t> Road::compute(std::pair<int, int> source, std::pair<int, int
     std::vector<vertex_t> previous;
     DijkstraComputePaths(src, adj, min_distance, previous);
 
+    std::cout << " ###COMPUTE###" << std::endl;
+    std::cout << " len(previous) = " << previous.size() << std::endl;
+    std::cout << " len(adj) = " << adj.size() << std::endl;
+    std::cout << " #############" << std::endl;
+
     vertex_t dst = index(dest.first, dest.second);
 
     return DijkstraGetShortestPathTo(dst, previous);
