@@ -14,7 +14,7 @@
 
 const weight_t max_weight = std::numeric_limits<double>::infinity();
 
-neighbor& neighbor::operator=(const neighbor &rhs)
+neighbor &neighbor::operator=(const neighbor &rhs)
 {
     if (this != &rhs)
     {
@@ -125,17 +125,33 @@ void Road::DijkstraComputePaths(vertex_t source,
         }
     }
 }
-
-void Road::drawLine(double &maxHeight,
-                    std::vector<QVector3D> &vertices,
-                    std::vector<QVector3D> &colors,
-                    std::vector<QVector3D> &normals,
-                    std::list<std::pair<int, int>> path) const
+void Road::drawLine(
+    std::vector<QVector3D> &colors,
+    std::list<std::pair<int, int>> path) const
 {
-    getMesh(maxHeight, vertices, colors, normals);
     for (auto pair : path)
-        colorCell(pair.first, pair.second, colors, ColorType::Red);
+    {
+        int i = pair.first;
+        int j = pair.second;
+        /*
+         * j + i*nx * 2 * 3 (2 pour le nombre de triangle par carre et 3 pour le nombre de sommet par triangle)
+         * 2 * 3 = 6
+         * on a 6 couleurs, donc
+         * 0 = indice_depart
+         * 1 = indice_depart + 1
+         * ...
+         * 5 = indice_depart + 5
+         */
+        int indice_depart = j + i * nx * 6;
+        colors[indice_depart] = QVector3D(1., 0., 0.);
+        colors[indice_depart + 1] = QVector3D(1., 0., 0.);
+        colors[indice_depart + 2] = QVector3D(1., 0., 0.);
+        colors[indice_depart + 3] = QVector3D(1., 0., 0.);
+        colors[indice_depart + 4] = QVector3D(1., 0., 0.);
+        colors[indice_depart + 5] = QVector3D(1., 0., 0.);
+    }
 }
+
 // std::list<vertex_t> Road::DijkstraGetShortestPathTo(
 //     vertex_t vertex, const std::vector<vertex_t> &previous)
 // {

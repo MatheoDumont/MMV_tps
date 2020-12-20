@@ -283,7 +283,7 @@ vec3 HeightField::getColor(int i, int j, double min, double max, SpecificDisplay
         break;
     }
 
-    return vec3(v, 0.0, max/10);
+    return vec3(v, 0.0, max / 10);
 }
 
 void HeightField::vertexCell(int i, int j, std::vector<QVector3D> &vertices) const
@@ -306,50 +306,42 @@ void HeightField::vertexCell(int i, int j, std::vector<QVector3D> &vertices) con
 void HeightField::colorCell(int i, int j, std::vector<QVector3D> &colors,
                             ColorType type, SpecificDisplay spec, int rangemin, int rangemax) const
 {
-    vec3 v0, v1, v2, v3;
+    vec3 c0, c1, c2, c3;
 
     switch (type)
     {
     case Grayscale:
-        v0 = getGrayscale(i, j, 0.0, 1.0);
-        v1 = getGrayscale(i + 1, j, 0.0, 1.0);
-        v2 = getGrayscale(i + 1, j + 1, 0.0, 1.0);
-        v3 = getGrayscale(i, j + 1, 0.0, 1.0);
+        c0 = getGrayscale(i, j, 0.0, 1.0);
+        c1 = getGrayscale(i + 1, j, 0.0, 1.0);
+        c2 = getGrayscale(i + 1, j + 1, 0.0, 1.0);
+        c3 = getGrayscale(i, j + 1, 0.0, 1.0);
         break;
 
     case HSV:
-        v0 = getColorHSV(i, j, 0.0, 1.0, rangemin, rangemax);
-        v1 = getColorHSV(i + 1, j, 0.0, 1.0, rangemin, rangemax);
-        v2 = getColorHSV(i + 1, j + 1, 0.0, 1.0, rangemin, rangemax);
-        v3 = getColorHSV(i, j + 1, 0.0, 1.0, rangemin, rangemax);
+        c0 = getColorHSV(i, j, 0.0, 1.0, rangemin, rangemax);
+        c1 = getColorHSV(i + 1, j, 0.0, 1.0, rangemin, rangemax);
+        c2 = getColorHSV(i + 1, j + 1, 0.0, 1.0, rangemin, rangemax);
+        c3 = getColorHSV(i, j + 1, 0.0, 1.0, rangemin, rangemax);
         break;
 
     case Coloring:
-        v0 = getColor(i, j, 0.0, 1.0, spec);
-        v1 = getColor(i + 1, j, 0.0, 1.0, spec);
-        v2 = getColor(i + 1, j + 1, 0.0, 1.0, spec);
-        v3 = getColor(i, j + 1, 0.0, 1.0, spec);
-        break;
-
-    case Red:
-        vec3 red = vec3(1., 0., 0.);
-        v0 = red;
-        v1 = red;
-        v2 = red;
-        v3 = red;
+        c0 = getColor(i, j, 0.0, 1.0, spec);
+        c1 = getColor(i + 1, j, 0.0, 1.0, spec);
+        c2 = getColor(i + 1, j + 1, 0.0, 1.0, spec);
+        c3 = getColor(i, j + 1, 0.0, 1.0, spec);
         break;
 
     default:
         break;
     }
 
-    colors.emplace_back(v0.x, v0.y, v0.z);
-    colors.emplace_back(v1.x, v1.y, v1.z);
-    colors.emplace_back(v2.x, v2.y, v2.z);
+    colors.emplace_back(c0.x, c0.y, c0.z);
+    colors.emplace_back(c1.x, c1.y, c1.z);
+    colors.emplace_back(c2.x, c2.y, c2.z);
 
-    colors.emplace_back(v0.x, v0.y, v0.z);
-    colors.emplace_back(v2.x, v2.y, v2.z);
-    colors.emplace_back(v3.x, v3.y, v3.z);
+    colors.emplace_back(c0.x, c0.y, c0.z);
+    colors.emplace_back(c2.x, c2.y, c2.z);
+    colors.emplace_back(c3.x, c3.y, c3.z);
 }
 
 void HeightField::normalCell(int i, int j, std::vector<QVector3D> &normals) const
@@ -415,11 +407,10 @@ StreamAreaCell HeightField::d8(const Point &p) const
         int i = p.i + next[k].first;
         int j = p.j + next[k].second;
 
-        
         if (inside(i, j))
         {
             double diff_height = p.height - height(i, j);
-           
+
             if (diff_height > 0.0)
             {
 
@@ -427,7 +418,6 @@ StreamAreaCell HeightField::d8(const Point &p) const
                 cell.sum_slope += cell.slopes[cell.n];
                 cell.points[cell.n] = Point(i, j);
                 cell.n++;
-                
             }
         }
     }

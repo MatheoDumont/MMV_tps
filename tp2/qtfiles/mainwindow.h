@@ -76,7 +76,7 @@ private:
 
     /*
      * On sauvegarde dedans uniquement les informations qui vont nous servir
-     * a calculer les images / textures/
+     * a calculer les images / textures.
      */
     HeightField hf_color;
 

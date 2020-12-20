@@ -209,6 +209,9 @@ void MainWindow::on_bluring_clicked()
 void MainWindow::on_RoadAction_clicked()
 {
     Road r = Road(hf_topology, 2);
-    std::list<std::pair<int,int>> path = r.compute({0, 0}, {hf_topology.getNX() - 1, hf_topology.getNY() - 1});
-    // r.drawLine(hf_topology.maxHeight, ) TODO
+    std::list<std::pair<int, int>> path = r.compute({0, 0}, {hf_topology.getNX() - 1, hf_topology.getNY() - 1});
+    display();
+    r.drawLine(ui->openGL_viewer->colors, path);
+    ui->openGL_viewer->updateColorBuffer();
+    ui->openGL_viewer->paintGL();
 }

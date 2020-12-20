@@ -28,7 +28,7 @@ struct neighbor
 
     neighbor(const neighbor &n) : target(n.target), weight(n.weight) {}
 
-    neighbor& operator=(const neighbor &rhs);
+    neighbor &operator=(const neighbor &rhs);
 };
 
 const double max_slope = 50.0;
@@ -40,7 +40,7 @@ private:
     // dans le voisinage pour calculer le shortest path
     int k;
 
-protected:
+public:
     double slope_transfer(double s);
     double curvature_transfer(double s);
 
@@ -63,15 +63,12 @@ protected:
     std::list<vertex_t> DijkstraGetShortestPathTo(
         vertex_t vertex, const std::vector<vertex_t> &previous);
 
-    std::list<std::pair<int, int>> compute(std::pair<int,int> source,std::pair<int,int> dest); //vertex_t source
+    std::list<std::pair<int, int>> compute(std::pair<int, int> source, std::pair<int, int> dest);
 
-    void drawLine(double &maxHeight,
-                  std::vector<QVector3D> &vertices,
-                  std::vector<QVector3D> &colors,
-                  std::vector<QVector3D> &normals,
-                  std::list<std::pair<int, int>> path) const;
+    void drawLine(
+        std::vector<QVector3D> &colors,
+        std::list<std::pair<int, int>> path) const;
 
-public:
     Road(const HeightField &hf, int k);
     // ~Road();
 };
