@@ -27,33 +27,17 @@ neighbor &neighbor::operator=(const neighbor &rhs)
 
 Road::Road(const HeightField &hf, int _k) : HeightField(hf), k(_k) {}
 
-std::list<std::pair<int, int>> Road::compute(std::pair<int, int> source, std::pair<int, int> dest)
-{
-    vertex_t src = index(source.first, source.second);
-    std::vector<weight_t> min_distance;
-    std::vector<vertex_t> previous;
-    DijkstraComputePaths(src, min_distance, previous);
-
-    vertex_t vertex = index(dest.first, dest.second);
-    std::list<std::pair<int, int>> path;
-    for (; vertex != -1; vertex = previous[vertex])
-        path.push_front(inverseIndex(vertex));
-    return path;
-}
-
-double Road::slope_transfer(double s)
+double Road::slope_transfer(double s) const
 {
     if (s > max_slope)
         return max_weight;
     return s;
 }
 
-std::vector<neighbor> Road::connexity(vertex_t u)
+std::vector<neighbor> Road::connexity(int i, int j) const
 {
-    std::pair<int, int> p = inverseIndex(u);
-    int i = p.first, j = p.second;
-    std::vector<neighbor> neighbors;
-    neighbors.resize(k * k);
+    std::vector<neighbor> neighbors(k * k);
+    // neighbors.resize(k * k);
 
     for (int ii = -k; ii < k + 1; ++ii)
         for (int jj = -k; jj < k + 1; ++jj)
@@ -67,72 +51,44 @@ std::vector<neighbor> Road::connexity(vertex_t u)
                 neighbors.push_back(neighbor(index(ki, kj), w));
             }
         }
-
+    // neighbors.shrink_to_fit();
     return neighbors;
 }
 
-// typedef std::vector<std::vector<neighbor>> adjacency_list_t;
-typedef std::pair<weight_t, vertex_t> weight_vertex_pair_t;
-
-void Road::DijkstraComputePaths(vertex_t source,
-                                std::vector<weight_t> &min_distance,
-                                std::vector<vertex_t> &previous)
+adjacency_list_t Road::build_adjacency_graph() const
 {
-    // int n = adjacency_list.size();
-    int n = nx * ny;
-    min_distance.clear();
-    min_distance.resize(n, max_weight);
-    min_distance[source] = 0;
-    previous.clear();
-    previous.resize(n, -1);
+    adjacency_list_t graph(nx * ny);
+    for (int i = 0; i < nx; ++i)
+        for (int j = 0; j < ny; ++j)
+            graph.push_back(connexity(i, j));
 
-    // we use greater instead of less to turn max-heap into min-heap
-    std::priority_queue<weight_vertex_pair_t,
-                        std::vector<weight_vertex_pair_t>,
-                        std::greater<weight_vertex_pair_t>>
-        vertex_queue;
-    vertex_queue.push(std::make_pair(min_distance[source], source));
-
-    while (!vertex_queue.empty())
-    {
-        weight_t dist = vertex_queue.top().first;
-        vertex_t u = vertex_queue.top().second;
-        vertex_queue.pop();
-
-        // Because we leave old copies of the vertex in the priority queue
-        // (with outdated higher distances), we need to ignore it when we come
-        // across it again, by checking its distance against the minimum distance
-        if (dist > min_distance[u])
-            continue;
-
-        // Visit each edge exiting u
-        // const std::vector<neighbor> &neighbors = adjacency_list[u];
-        std::vector<neighbor> neighbors = connexity(u);
-
-        for (std::vector<neighbor>::const_iterator neighbor_iter = neighbors.begin();
-             neighbor_iter != neighbors.end();
-             neighbor_iter++)
-        {
-            vertex_t v = neighbor_iter->target;
-            weight_t weight = neighbor_iter->weight;
-            weight_t distance_through_u = dist + weight;
-            if (distance_through_u < min_distance[v])
-            {
-                min_distance[v] = distance_through_u;
-                previous[v] = u;
-                vertex_queue.push(std::make_pair(min_distance[v], v));
-            }
-        }
-    }
+    return graph;
 }
+
+std::list<vertex_t> Road::compute(std::pair<int, int> source, std::pair<int, int> dest) const
+{
+    vertex_t src = index(source.first, source.second);
+    adjacency_list_t adj = build_adjacency_graph();
+    std::vector<weight_t> min_distance;
+    std::vector<vertex_t> previous;
+    DijkstraComputePaths(src, adj, min_distance, previous);
+
+    vertex_t dst = index(dest.first, dest.second);
+
+    return DijkstraGetShortestPathTo(dst, previous);
+}
+
 void Road::drawLine(
     std::vector<QVector3D> &colors,
-    std::list<std::pair<int, int>> path) const
+    std::list<vertex_t> path) const
 {
-    for (auto pair : path)
+    std::cout << "TAILLE DE PATH : " << path.size() << std::endl;
+    for (vertex_t v : path)
     {
-        int i = pair.first;
-        int j = pair.second;
+        std::pair<int, int> p = inverseIndex(v);
+        int i = p.first;
+        int j = p.second;
+
         /*
          * j + i*nx * 2 * 3 (2 pour le nombre de triangle par carre et 3 pour le nombre de sommet par triangle)
          * 2 * 3 = 6
@@ -142,24 +98,69 @@ void Road::drawLine(
          * ...
          * 5 = indice_depart + 5
          */
-        int indice_depart = j + i * nx * 6;
+        int indice_depart = (j + i * nx) * 6;
+        std::cout << "D " << i << ", " << j << ", " << indice_depart;
         colors[indice_depart] = QVector3D(1., 0., 0.);
         colors[indice_depart + 1] = QVector3D(1., 0., 0.);
         colors[indice_depart + 2] = QVector3D(1., 0., 0.);
         colors[indice_depart + 3] = QVector3D(1., 0., 0.);
         colors[indice_depart + 4] = QVector3D(1., 0., 0.);
         colors[indice_depart + 5] = QVector3D(1., 0., 0.);
+        std::cout << " F" << std::endl;
     }
 }
 
-// std::list<vertex_t> Road::DijkstraGetShortestPathTo(
-//     vertex_t vertex, const std::vector<vertex_t> &previous)
-// {
-//     std::list<vertex_t> path;
-//     for (; vertex != -1; vertex = previous[vertex])
-//         path.push_front(vertex);
-//     return path;
-// }
+///////////////////////////
+
+void Road::DijkstraComputePaths(vertex_t source,
+                                const adjacency_list_t &adjacency_list,
+                                std::vector<weight_t> &min_distance,
+                                std::vector<vertex_t> &previous) const
+{
+    int n = adjacency_list.size();
+    min_distance.clear();
+    min_distance.resize(n, max_weight);
+    min_distance[source] = 0;
+    previous.clear();
+    previous.resize(n, -1);
+    std::set<std::pair<weight_t, vertex_t>> vertex_queue;
+    vertex_queue.insert(std::make_pair(min_distance[source], source));
+
+    while (!vertex_queue.empty())
+    {
+        weight_t dist = vertex_queue.begin()->first;
+        vertex_t u = vertex_queue.begin()->second;
+        vertex_queue.erase(vertex_queue.begin());
+
+        // Visit each edge exiting u
+        const std::vector<neighbor> &neighbors = adjacency_list[u];
+        for (std::vector<neighbor>::const_iterator neighbor_iter = neighbors.begin();
+             neighbor_iter != neighbors.end();
+             neighbor_iter++)
+        {
+            vertex_t v = neighbor_iter->target;
+            weight_t weight = neighbor_iter->weight;
+            weight_t distance_through_u = dist + weight;
+            if (distance_through_u < min_distance[v])
+            {
+                vertex_queue.erase(std::make_pair(min_distance[v], v));
+
+                min_distance[v] = distance_through_u;
+                previous[v] = u;
+                vertex_queue.insert(std::make_pair(min_distance[v], v));
+            }
+        }
+    }
+}
+
+std::list<vertex_t> Road::DijkstraGetShortestPathTo(
+    vertex_t vertex, const std::vector<vertex_t> &previous) const
+{
+    std::list<vertex_t> path;
+    for (; vertex != -1; vertex = previous[vertex])
+        path.push_front(vertex);
+    return path;
+}
 
 // int main()
 // {

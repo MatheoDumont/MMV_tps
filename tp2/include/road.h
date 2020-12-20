@@ -13,6 +13,7 @@
 #include <utility> // for pair
 #include <algorithm>
 #include <iterator>
+#include <set>
 
 typedef int vertex_t;
 typedef double weight_t;
@@ -30,6 +31,7 @@ struct neighbor
 
     neighbor &operator=(const neighbor &rhs);
 };
+typedef std::vector<std::vector<neighbor>> adjacency_list_t;
 
 const double max_slope = 50.0;
 class Road : public HeightField
@@ -41,8 +43,8 @@ private:
     int k;
 
 public:
-    double slope_transfer(double s);
-    double curvature_transfer(double s);
+    double slope_transfer(double s) const;
+    double curvature_transfer(double s) const;
 
     /*
      * Connexity => fonction pour obtenir tous les voisins d'un noeud depuis :
@@ -53,21 +55,23 @@ public:
      *  f o t(p, p`, p``) avec f une fonction de transfere,
      *   p la position du voisin, p` sa pente et p`` sa courbure.
      */
-    std::vector<neighbor> connexity(vertex_t u);
+    std::vector<neighbor> connexity(int i, int j) const;
+
+    adjacency_list_t build_adjacency_graph() const;
+
+    std::list<vertex_t> compute(std::pair<int, int> source, std::pair<int, int> dest) const;
+
+    void drawLine(std::vector<QVector3D> &colors,
+                  std::list<vertex_t> path) const;
 
     // https://rosettacode.org/wiki/Dijkstra%27s_algorithm#C.2B.2B
     void DijkstraComputePaths(vertex_t source,
+                              const adjacency_list_t &adjacency_list,
                               std::vector<weight_t> &min_distance,
-                              std::vector<vertex_t> &previous);
+                              std::vector<vertex_t> &previous) const;
 
     std::list<vertex_t> DijkstraGetShortestPathTo(
-        vertex_t vertex, const std::vector<vertex_t> &previous);
-
-    std::list<std::pair<int, int>> compute(std::pair<int, int> source, std::pair<int, int> dest);
-
-    void drawLine(
-        std::vector<QVector3D> &colors,
-        std::list<std::pair<int, int>> path) const;
+        vertex_t vertex, const std::vector<vertex_t> &previous) const;
 
     Road(const HeightField &hf, int k);
     // ~Road();

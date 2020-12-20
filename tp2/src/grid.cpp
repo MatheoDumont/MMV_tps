@@ -12,7 +12,7 @@ Grid::Grid(const Box2D &box, int _nx, int _ny) : Box2D(box), nx(_nx), ny(_ny)
 
 int Grid::index(int i, int j) const
 {
-    return i + j * nx;
+    return j + i * nx;
 }
 
 std::pair<int, int> Grid::inverseIndex(int x) const
