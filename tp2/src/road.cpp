@@ -36,8 +36,8 @@ double Road::slope_transfer(double s) const
 
 std::vector<neighbor> Road::connexity(int i, int j) const
 {
-    std::vector<neighbor> neighbors(k * k);
-    // neighbors.resize(k * k);
+    std::vector<neighbor> neighbors;
+    neighbors.reserve(k * k);
 
     for (int ii = -k; ii < k + 1; ++ii)
         for (int jj = -k; jj < k + 1; ++jj)
@@ -48,7 +48,9 @@ std::vector<neighbor> Road::connexity(int i, int j) const
             {
                 weight_t w = 1.0;
                 w += slope_transfer(slope(ki, kj));
-                neighbors.push_back(neighbor(index(ki, kj), w));
+                // std::cout << ki << ", " << kj << ", " << w << std::endl;
+
+                neighbors.emplace_back(index(ki, kj), w);
             }
         }
     // neighbors.shrink_to_fit();
@@ -57,10 +59,18 @@ std::vector<neighbor> Road::connexity(int i, int j) const
 
 adjacency_list_t Road::build_adjacency_graph() const
 {
-    adjacency_list_t graph(nx * ny);
+    adjacency_list_t graph;
+    graph.reserve(nx * ny);
     for (int i = 0; i < nx; ++i)
         for (int j = 0; j < ny; ++j)
             graph.push_back(connexity(i, j));
+    // std::cout << i << ", " << j << ", " << graph.back().size() << std::endl;
+    // for (neighbor i : graph.back())
+    // {
+    //     auto t = inverseIndex(i.target);
+
+    //     std::cout << t.first << ", " << t.second << i.weight << std::endl;
+    // }
 
     return graph;
 }
@@ -72,11 +82,6 @@ std::list<vertex_t> Road::compute(std::pair<int, int> source, std::pair<int, int
     std::vector<weight_t> min_distance;
     std::vector<vertex_t> previous;
     DijkstraComputePaths(src, adj, min_distance, previous);
-
-    std::cout << " ###COMPUTE###" << std::endl;
-    std::cout << " len(previous) = " << previous.size() << std::endl;
-    std::cout << " len(adj) = " << adj.size() << std::endl;
-    std::cout << " #############" << std::endl;
 
     vertex_t dst = index(dest.first, dest.second);
 
@@ -113,6 +118,7 @@ void Road::drawLine(
         colors[indice_depart + 5] = QVector3D(1., 0., 0.);
         std::cout << " F" << std::endl;
     }
+    std::cout << "fin draw line " << std::endl;
 }
 
 ///////////////////////////

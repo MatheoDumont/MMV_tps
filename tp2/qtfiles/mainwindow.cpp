@@ -212,6 +212,9 @@ void MainWindow::on_RoadAction_clicked()
     std::list<vertex_t> path = r.compute({0, 0}, {hf_topology.getNX() - 1, hf_topology.getNY() - 1});
     display();
     r.drawLine(ui->openGL_viewer->colors, path);
+    std::cout << "fin drawline main " << std::endl;
     ui->openGL_viewer->updateColorBuffer();
+    std::cout << "fin updateColorBuffer main " << std::endl;
     ui->openGL_viewer->paintGL();
+    std::cout << "fin paintGL main " << std::endl;
 }
