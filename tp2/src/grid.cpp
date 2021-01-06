@@ -12,12 +12,14 @@ Grid::Grid(const Box2D &box, int _nx, int _ny) : Box2D(box), nx(_nx), ny(_ny)
 
 int Grid::index(int i, int j) const
 {
-    return j + i * nx;
+    return j + i * ny;
 }
 
 std::pair<int, int> Grid::inverseIndex(int x) const
 {
-    return {x % nx, x / nx};
+    int row = x / ny;
+    int col = x - row;
+    return {row, col};
 }
 
 bool Grid::inside(int i, int j) const

@@ -108,15 +108,15 @@ void Road::drawLine(
          * ...
          * 5 = indice_depart + 5
          */
-        int indice_depart = (j + i * nx) * 6;
-        std::cout << "D " << i << ", " << j << ", " << indice_depart;
+        int indice_depart = index(i, j) * 6; // (j + i * ny) * 6
+        // std::cout << "D " << i << ", " << j << ", " << indice_depart;
         colors[indice_depart] = QVector3D(1., 0., 0.);
         colors[indice_depart + 1] = QVector3D(1., 0., 0.);
         colors[indice_depart + 2] = QVector3D(1., 0., 0.);
         colors[indice_depart + 3] = QVector3D(1., 0., 0.);
         colors[indice_depart + 4] = QVector3D(1., 0., 0.);
         colors[indice_depart + 5] = QVector3D(1., 0., 0.);
-        std::cout << " F" << std::endl;
+        // std::cout << " F" << std::endl;
     }
     std::cout << "fin draw line " << std::endl;
 }
