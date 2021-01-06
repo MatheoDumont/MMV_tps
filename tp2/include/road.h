@@ -33,7 +33,6 @@ struct neighbor
 };
 typedef std::vector<std::vector<neighbor>> adjacency_list_t;
 
-const double max_slope = 50.0;
 class Road : public HeightField
 {
 private:
@@ -41,6 +40,8 @@ private:
     // k la constante dans [1, ...] qui permet de dire combien de voisin on compte
     // dans le voisinage pour calculer le shortest path
     int k;
+    double min_slope;
+    double max_slope;
 
 public:
     double slope_transfer(double s) const;
@@ -73,7 +74,7 @@ public:
     std::list<vertex_t> DijkstraGetShortestPathTo(
         vertex_t vertex, const std::vector<vertex_t> &previous) const;
 
-    Road(const HeightField &hf, int k);
+    Road(const HeightField &hf, int k, double min_slope, double max_slope);
     // ~Road();
 };
 

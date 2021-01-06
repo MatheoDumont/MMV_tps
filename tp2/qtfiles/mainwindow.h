@@ -81,7 +81,7 @@ private:
     HeightField hf_color;
 
     HeightField::ColorType type;
-    
+
     SpecificDisplay specificDisplay = Default;
 
     friend class DisplayGLWidget;

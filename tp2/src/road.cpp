@@ -25,12 +25,14 @@ neighbor &neighbor::operator=(const neighbor &rhs)
     return *this;
 }
 
-Road::Road(const HeightField &hf, int _k) : HeightField(hf), k(_k) {}
+Road::Road(const HeightField &hf, int _k, double _min_slope, double _max_slope)
+    : HeightField(hf), k(_k), min_slope(_min_slope), max_slope(_max_slope) {}
 
 double Road::slope_transfer(double s) const
 {
-    if (s > max_slope)
+    if (s >= max_slope || s <= min_slope)
         return max_weight;
+
     return s;
 }
 
@@ -48,12 +50,10 @@ std::vector<neighbor> Road::connexity(int i, int j) const
             {
                 weight_t w = 1.0;
                 w += slope_transfer(slope(ki, kj));
-                // std::cout << ki << ", " << kj << ", " << w << std::endl;
 
                 neighbors.emplace_back(index(ki, kj), w);
             }
         }
-    // neighbors.shrink_to_fit();
     return neighbors;
 }
 
@@ -64,23 +64,16 @@ adjacency_list_t Road::build_adjacency_graph() const
     for (int i = 0; i < nx; ++i)
         for (int j = 0; j < ny; ++j)
             graph.push_back(connexity(i, j));
-    // std::cout << i << ", " << j << ", " << graph.back().size() << std::endl;
-    // for (neighbor i : graph.back())
-    // {
-    //     auto t = inverseIndex(i.target);
-
-    //     std::cout << t.first << ", " << t.second << i.weight << std::endl;
-    // }
 
     return graph;
 }
 
 std::list<vertex_t> Road::compute(std::pair<int, int> source, std::pair<int, int> dest) const
 {
-    vertex_t src = index(source.first, source.second);
     adjacency_list_t adj = build_adjacency_graph();
     std::vector<weight_t> min_distance;
     std::vector<vertex_t> previous;
+    vertex_t src = index(source.first, source.second);
     DijkstraComputePaths(src, adj, min_distance, previous);
 
     vertex_t dst = index(dest.first, dest.second);
@@ -92,7 +85,6 @@ void Road::drawLine(
     std::vector<QVector3D> &colors,
     std::list<vertex_t> path) const
 {
-    std::cout << "TAILLE DE PATH : " << path.size() << std::endl;
     for (vertex_t v : path)
     {
         std::pair<int, int> p = inverseIndex(v);
@@ -100,7 +92,7 @@ void Road::drawLine(
         int j = p.second;
 
         /*
-         * j + i*nx * 2 * 3 (2 pour le nombre de triangle par carre et 3 pour le nombre de sommet par triangle)
+         * j + i*ny * 2 * 3 (2 pour le nombre de triangle par carre et 3 pour le nombre de sommet par triangle)
          * 2 * 3 = 6
          * on a 6 couleurs, donc
          * 0 = indice_depart
@@ -109,16 +101,13 @@ void Road::drawLine(
          * 5 = indice_depart + 5
          */
         int indice_depart = index(i, j) * 6; // (j + i * ny) * 6
-        // std::cout << "D " << i << ", " << j << ", " << indice_depart;
         colors[indice_depart] = QVector3D(1., 0., 0.);
         colors[indice_depart + 1] = QVector3D(1., 0., 0.);
         colors[indice_depart + 2] = QVector3D(1., 0., 0.);
         colors[indice_depart + 3] = QVector3D(1., 0., 0.);
         colors[indice_depart + 4] = QVector3D(1., 0., 0.);
         colors[indice_depart + 5] = QVector3D(1., 0., 0.);
-        // std::cout << " F" << std::endl;
     }
-    std::cout << "fin draw line " << std::endl;
 }
 
 ///////////////////////////

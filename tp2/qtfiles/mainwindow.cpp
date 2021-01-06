@@ -208,8 +208,11 @@ void MainWindow::on_bluring_clicked()
 
 void MainWindow::on_RoadAction_clicked()
 {
-    Road r = Road(hf_topology, 2);
-    std::list<vertex_t> path = r.compute({0, 0}, {hf_topology.getNX() - 1, hf_topology.getNY() - 1});
+    int k = 4;
+    double min_slope = ui->selectionMinSlope->value();
+    double max_slope = ui->selectionMaxSlope->value();
+    Road r = Road(hf_topology, k, min_slope, max_slope);
+    std::list<vertex_t> path = r.compute({k, k}, {hf_topology.getNX() - k, hf_topology.getNY() - k});
     display();
     r.drawLine(ui->openGL_viewer->colors, path);
     std::cout << "fin drawline main " << std::endl;
@@ -218,3 +221,4 @@ void MainWindow::on_RoadAction_clicked()
     ui->openGL_viewer->paintGL();
     std::cout << "fin paintGL main " << std::endl;
 }
+
