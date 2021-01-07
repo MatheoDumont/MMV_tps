@@ -42,6 +42,7 @@ private:
     int k;
     double min_slope;
     double max_slope;
+    Grid grid;
 
 public:
     double slope_transfer(double s) const;
@@ -64,6 +65,7 @@ public:
 
     void drawLine(std::vector<QVector3D> &colors,
                   std::list<vertex_t> path) const;
+    void colorSquare(int i, int j, std::vector<QVector3D> &colors) const;
 
     // https://rosettacode.org/wiki/Dijkstra%27s_algorithm#C.2B.2B
     void DijkstraComputePaths(vertex_t source,

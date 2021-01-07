@@ -212,8 +212,10 @@ void MainWindow::on_RoadAction_clicked()
     double min_slope = ui->selectionMinSlope->value();
     double max_slope = ui->selectionMaxSlope->value();
     Road r = Road(hf_topology, k, min_slope, max_slope);
-    std::list<vertex_t> path = r.compute({k, k}, {hf_topology.getNX() - k, hf_topology.getNY() - k});
+
     display();
+    
+    std::list<vertex_t> path = r.compute({k, k}, {hf_topology.getNX() - k, hf_topology.getNY() - k});
     r.drawLine(ui->openGL_viewer->colors, path);
     std::cout << "fin drawline main " << std::endl;
     ui->openGL_viewer->updateColorBuffer();

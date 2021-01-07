@@ -18,7 +18,7 @@ int Grid::index(int i, int j) const
 std::pair<int, int> Grid::inverseIndex(int x) const
 {
     int row = x / ny;
-    int col = x - row;
+    int col = x % ny;
     return {row, col};
 }
 
@@ -34,8 +34,8 @@ bool Grid::border(int i, int j) const
 
 vec2 Grid::vertex(int i, int j) const
 {
-    double u = double(i) / (nx - 1);
-    double v = double(j) / (ny - 1);
+    double u = double(i) / double(nx - 1);
+    double v = double(j) / double(ny - 1);
 
     return vec2((1 - u) * a.x + u * b.x,
                 (1 - v) * a.y + v * b.y);

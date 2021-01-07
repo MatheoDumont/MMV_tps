@@ -21,8 +21,8 @@ public:
     bool inside(int i, int j) const;
     bool border(int i, int j) const;
     vec2 vertex(int i, int j) const;
-    inline int getNX() { return nx; }
-    inline int getNY() { return ny; }
+    inline int getNX() const { return nx; }
+    inline int getNY() const { return ny; }
 };
 
 #endif
