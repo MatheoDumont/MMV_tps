@@ -88,36 +88,81 @@ adjacency_list_t Road::build_adjacency_graph() const
     return graph;
 }
 
-std::list<vertex_t> Road::compute(std::pair<int, int> source, std::pair<int, int> dest) const
+std::list<vertex_t> Road::compute(const std::pair<int, int> &source, const std::pair<int, int> &dest) const
 {
-    vertex_t src = grid.index(source.first, source.second);
+    int x, y, nx, ny;
+
+    nx = grid.getNX();
+    ny = grid.getNY();
+
+    x = source.first;
+    if (x == nx)
+      x = nx - 1;
+    else if (x == nx - 1)
+      x = nx - 2;
+
+    y = source.second;
+    if (y == ny)
+      y = ny - 1;
+    else if (y == ny - 1)
+      y = ny - 2;
+
+    vertex_t src = grid.index(x, y);
+
     adjacency_list_t adj = build_adjacency_graph();
     std::vector<weight_t> min_distance;
     std::vector<vertex_t> previous;
     DijkstraComputePaths(src, adj, min_distance, previous);
 
-    vertex_t dst = grid.index(dest.first, dest.second);
+    x = dest.first;
+    if (x == nx)
+      x = nx - 1;
+    else if (x == nx - 1)
+      x = nx - 2;
+
+    y = dest.second;
+    if (y == ny)
+      y = ny - 1;
+    else if (y == ny - 1)
+      y = ny - 2;
+
+    vertex_t dst = grid.index(x, y);
 
     return DijkstraGetShortestPathTo(dst, previous);
 }
 
-void Road::drawLine(
+bool Road::drawLine(
     std::vector<QVector3D> &colors,
     std::list<vertex_t> path) const
 {
+    int i, j;
+    std::pair<int, int> p;
+
+    if (path.size() == 1)
+      return false;
+
+    vertex_t f = path.front();
+    path.pop_front();
+
+    p = grid.inverseIndex(f);
+    colorSquare(p.first, p.second, colors, GREEN);
+
     for (vertex_t v : path)
     {
-        std::pair<int, int> p = grid.inverseIndex(v);
-        int i = p.first;
-        int j = p.second;
+        p = grid.inverseIndex(v);
+        i = p.first;
+        j = p.second;
 
         for (int step = -1; step < 2; ++step)
             if (grid.inside(i + step, j + step) == true)
-                colorSquare(i + step, j + step, colors);
+                colorSquare(i + step, j + step, colors, RED);
     }
+    colorSquare(i, j, colors, BLUE);
+
+    return true;
 }
 
-void Road::colorSquare(int i, int j, std::vector<QVector3D> &colors) const
+void Road::colorSquare(int i, int j, std::vector<QVector3D> &colors, const QVector3D &color) const
 {
     /*
     * j + i*ny * 2 * 3 (2 pour le nombre de triangle par carre et 3 pour le nombre de sommet par triangle)
@@ -130,7 +175,7 @@ void Road::colorSquare(int i, int j, std::vector<QVector3D> &colors) const
     */
     int indice_depart = grid.index(i, j) * 6;
     for (int i = 0; i < 6; ++i)
-        colors[indice_depart + i] = RED;
+        colors[indice_depart + i] = color;
 }
 
 /***************** ROSETTA CODE *****************/

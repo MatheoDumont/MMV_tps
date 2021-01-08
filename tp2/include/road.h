@@ -61,11 +61,11 @@ public:
 
     adjacency_list_t build_adjacency_graph() const;
 
-    std::list<vertex_t> compute(std::pair<int, int> source, std::pair<int, int> dest) const;
+    std::list<vertex_t> compute(const std::pair<int, int> &source, const std::pair<int, int> &dest) const;
 
-    void drawLine(std::vector<QVector3D> &colors,
+    bool drawLine(std::vector<QVector3D> &colors,
                   std::list<vertex_t> path) const;
-    void colorSquare(int i, int j, std::vector<QVector3D> &colors) const;
+    void colorSquare(int i, int j, std::vector<QVector3D> &colors, const QVector3D &color) const;
 
     // https://rosettacode.org/wiki/Dijkstra%27s_algorithm#C.2B.2B
     void DijkstraComputePaths(vertex_t source,

@@ -2,12 +2,15 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QErrorMessage>
 #include <QImage>
+#include <QPoint>
 #include <QString>
 
 #include "bounddialog.h"
 #include "height_field.h"
 #include "road.h"
+#include "labelimage.h"
 
 namespace Ui
 {
@@ -59,6 +62,9 @@ private slots:
 
     void on_RoadAction_clicked();
 
+    void imageClicked(int x, int y, Qt::MouseButton button);
+    QImage updateImage(const QImage& im);
+
 private:
     Ui::MainWindow *ui;
 
@@ -66,6 +72,9 @@ private:
     QString filename;
     QString filter = "Image (*.jpe *.jpg *.jpeg *.png *.tif *.tiff *.raw)";
     QImage image;
+    QPoint road_start = QPoint(-1, -1);
+    QPoint road_end = QPoint(-1, -1);
+    QErrorMessage error_message;
 
     /*
      * On sauvegarde dedans les informations de la hauteur

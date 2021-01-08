@@ -8,13 +8,14 @@
 #include <QPixmap>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), bd(this), type(HeightField::Grayscale)
+    : QMainWindow(parent), ui(new Ui::MainWindow), bd(this), type(HeightField::Grayscale), error_message(this)
 {
     ui->setupUi(this);
 
     ui->stackedWidget->setCurrentWidget(ui->image_display);
 
     connect(&bd, SIGNAL(accepted()), this, SLOT(on_boundsSpecified()));
+    connect(ui->image_viewer, SIGNAL(imageClicked(int, int, Qt::MouseButton)), this, SLOT(imageClicked(int, int, Qt::MouseButton)));
 }
 
 MainWindow::~MainWindow()
@@ -55,6 +56,8 @@ void MainWindow::on_boundsSpecified()
                         ui->openGL_viewer->normals);
 
     ui->openGL_viewer->maxHeight = hf_topology.maxHeight;
+    road_start = QPoint(-1, -1);
+    road_end = QPoint(-1, -1);
 }
 
 void MainWindow::displayGL()
@@ -72,25 +75,29 @@ void MainWindow::displayGL()
 void MainWindow::displayImage()
 {
     QPixmap res;
+    QImage im;
 
     switch (this->type)
     {
     case HeightField::ColorType::Grayscale:
-        res = QPixmap::fromImage(hf_color.grayscale());
+        im = hf_color.grayscale() ;
         break;
 
     case HeightField::ColorType::HSV:
         // TODO enlever parametres en dur et mettre un selecteur dans ui
-        res = QPixmap::fromImage(hf_color.colorHSV(270, 330));
+        im = hf_color.colorHSV(270, 330);
         break;
 
     case HeightField::ColorType::Coloring:
-        res = QPixmap::fromImage(hf_color.color(specificDisplay));
+        im = hf_color.color(specificDisplay);
         break;
 
     default:
         break;
     }
+
+    im = updateImage(im);
+    res = QPixmap::fromImage(im);
 
     int w = ui->image_viewer->width();
     int h = ui->image_viewer->height();
@@ -208,19 +215,81 @@ void MainWindow::on_bluring_clicked()
 
 void MainWindow::on_RoadAction_clicked()
 {
+    if (road_start.x() == -1 || road_start.y() == -1)
+    {
+        error_message.showMessage("The starting point of the road is not set");
+        return;
+    }
+    else if (road_end.x() == -1 || road_end.y() == -1)
+    {
+        error_message.showMessage("The ending point of the road is not set");
+        return;
+    }
+    else if (road_start == road_end)
+    {
+        error_message.showMessage("The starting point and the ending point are the same");
+        return;
+    }
+
     int k = 4;
     double min_slope = ui->selectionMinSlope->value();
     double max_slope = ui->selectionMaxSlope->value();
     Road r = Road(hf_topology, k, min_slope, max_slope);
 
+    on_action3D_model_triggered();
     display();
     
-    std::list<vertex_t> path = r.compute({k, k}, {hf_topology.getNX() - k, hf_topology.getNY() - k});
-    r.drawLine(ui->openGL_viewer->colors, path);
-    std::cout << "fin drawline main " << std::endl;
+    std::list<vertex_t> path = r.compute({road_start.x(), road_start.y()}, {road_end.x(), road_end.y()});
+
+    bool b = r.drawLine(ui->openGL_viewer->colors, path);
+    if (b == false)
+    {
+        on_actionImage_view_triggered();
+        display();
+        error_message.showMessage("Can't find a path with those parameters");
+        return;
+    }
+
     ui->openGL_viewer->updateColorBuffer();
-    std::cout << "fin updateColorBuffer main " << std::endl;
     ui->openGL_viewer->paintGL();
-    std::cout << "fin paintGL main " << std::endl;
 }
 
+void MainWindow::imageClicked(int x, int y, Qt::MouseButton button)
+{
+    if (ui->image_viewer->pixmap(Qt::ReturnByValue).width() == 0 ||
+        ui->image_viewer->pixmap(Qt::ReturnByValue).width() == 0)
+        return;
+
+    int x_im = x * image.width() / ui->image_viewer->pixmap(Qt::ReturnByValue).width();
+    int y_im = y * image.height() / ui->image_viewer->pixmap(Qt::ReturnByValue).height();
+
+    switch(button)
+    {
+    case Qt::MouseButton::LeftButton:
+        road_start = QPoint(x_im, y_im);
+        break;
+
+    case Qt::MouseButton::RightButton:
+        road_end = QPoint(x_im, y_im);
+        break;
+
+    default:
+        break;
+    };
+
+    display();
+}
+
+QImage MainWindow::updateImage(const QImage& im)
+{
+    QImage temp_color = im.copy(0, 0, im.width(), im.height());
+    temp_color.convertTo(QImage::Format_RGB32);
+
+    if (road_start.x() != -1 && road_start.y() != -1)
+      temp_color.setPixelColor(road_start, QColor(0, 255, 0));
+
+    if (road_end.x() != -1 && road_end.y() != -1)
+      temp_color.setPixelColor(road_end, QColor(255, 0, 0));
+
+    return temp_color;
+}
