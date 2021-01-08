@@ -256,12 +256,12 @@ void MainWindow::on_RoadAction_clicked()
 
 void MainWindow::imageClicked(int x, int y, Qt::MouseButton button)
 {
-    if (ui->image_viewer->pixmap(Qt::ReturnByValue).width() == 0 ||
-        ui->image_viewer->pixmap(Qt::ReturnByValue).width() == 0)
+    if (ui->image_viewer->pixmap()->width() == 0 ||
+        ui->image_viewer->pixmap()->height() == 0)
         return;
 
-    int x_im = x * image.width() / ui->image_viewer->pixmap(Qt::ReturnByValue).width();
-    int y_im = y * image.height() / ui->image_viewer->pixmap(Qt::ReturnByValue).height();
+    int x_im = x * image.width() / ui->image_viewer->pixmap()->width();
+    int y_im = y * image.height() / ui->image_viewer->pixmap()->height();
 
     switch(button)
     {
