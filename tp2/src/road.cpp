@@ -42,18 +42,15 @@ neighbor &neighbor::operator=(const neighbor &rhs)
     return *this;
 }
 
-Road::Road(const HeightField &hf, int _k, double _min_slope, double _max_slope)
-    : HeightField(hf), k(_k), min_slope(_min_slope), max_slope(_max_slope)
+Road::Road(const HeightField &hf, int _k, double _slope_coef)
+    : HeightField(hf), k(_k), slope_coef(_slope_coef)
 {
     grid = Grid((Box2D)hf, hf.getNX() - 1, hf.getNY() - 1);
 }
 
 double Road::slope_transfer(double s) const
 {
-    if (s >= max_slope || s < min_slope)
-        return max_weight;
-
-    return s;
+    return s * slope_coef;
 }
 
 std::vector<neighbor> Road::connexity(int i, int j) const
@@ -97,15 +94,15 @@ std::list<vertex_t> Road::compute(const std::pair<int, int> &source, const std::
 
     x = source.first;
     if (x == nx)
-      x = nx - 1;
+        x = nx - 1;
     else if (x == nx - 1)
-      x = nx - 2;
+        x = nx - 2;
 
     y = source.second;
     if (y == ny)
-      y = ny - 1;
+        y = ny - 1;
     else if (y == ny - 1)
-      y = ny - 2;
+        y = ny - 2;
 
     vertex_t src = grid.index(x, y);
 
@@ -116,15 +113,15 @@ std::list<vertex_t> Road::compute(const std::pair<int, int> &source, const std::
 
     x = dest.first;
     if (x == nx)
-      x = nx - 1;
+        x = nx - 1;
     else if (x == nx - 1)
-      x = nx - 2;
+        x = nx - 2;
 
     y = dest.second;
     if (y == ny)
-      y = ny - 1;
+        y = ny - 1;
     else if (y == ny - 1)
-      y = ny - 2;
+        y = ny - 2;
 
     vertex_t dst = grid.index(x, y);
 
@@ -139,7 +136,7 @@ bool Road::drawLine(
     std::pair<int, int> p;
 
     if (path.size() == 1)
-      return false;
+        return false;
 
     vertex_t f = path.front();
     path.pop_front();

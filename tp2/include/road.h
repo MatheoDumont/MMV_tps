@@ -40,11 +40,13 @@ private:
     // k la constante dans [1, ...] qui permet de dire combien de voisin on compte
     // dans le voisinage pour calculer le shortest path
     int k;
-    double min_slope;
-    double max_slope;
+    double slope_coef;
     Grid grid;
 
 public:
+    Road(const HeightField &hf, int k, double slope_coef);
+    // ~Road();
+
     double slope_transfer(double s) const;
     double curvature_transfer(double s) const;
 
@@ -75,9 +77,6 @@ public:
 
     std::list<vertex_t> DijkstraGetShortestPathTo(
         vertex_t vertex, const std::vector<vertex_t> &previous) const;
-
-    Road(const HeightField &hf, int k, double min_slope, double max_slope);
-    // ~Road();
 };
 
 #endif

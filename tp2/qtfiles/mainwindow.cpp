@@ -80,7 +80,7 @@ void MainWindow::displayImage()
     switch (this->type)
     {
     case HeightField::ColorType::Grayscale:
-        im = hf_color.grayscale() ;
+        im = hf_color.grayscale();
         break;
 
     case HeightField::ColorType::HSV:
@@ -232,13 +232,13 @@ void MainWindow::on_RoadAction_clicked()
     }
 
     int k = 4;
-    double min_slope = ui->selectionMinSlope->value();
-    double max_slope = ui->selectionMaxSlope->value();
-    Road r = Road(hf_topology, k, min_slope, max_slope);
+    double slope_coef = ui->spinSlope->value();
+
+    Road r = Road(hf_topology, k, slope_coef);
 
     on_action3D_model_triggered();
     display();
-    
+
     std::list<vertex_t> path = r.compute({road_start.x(), road_start.y()}, {road_end.x(), road_end.y()});
 
     bool b = r.drawLine(ui->openGL_viewer->colors, path);
@@ -263,7 +263,7 @@ void MainWindow::imageClicked(int x, int y, Qt::MouseButton button)
     int x_im = x * image.width() / ui->image_viewer->pixmap()->width();
     int y_im = y * image.height() / ui->image_viewer->pixmap()->height();
 
-    switch(button)
+    switch (button)
     {
     case Qt::MouseButton::LeftButton:
         road_start = QPoint(x_im, y_im);
@@ -280,16 +280,16 @@ void MainWindow::imageClicked(int x, int y, Qt::MouseButton button)
     display();
 }
 
-QImage MainWindow::updateImage(const QImage& im)
+QImage MainWindow::updateImage(const QImage &im)
 {
     QImage temp_color = im.copy(0, 0, im.width(), im.height());
-    temp_color.convertTo(QImage::Format_RGB32);
+    temp_color.convertToFormat(QImage::Format_RGB32);
 
     if (road_start.x() != -1 && road_start.y() != -1)
-      temp_color.setPixelColor(road_start, QColor(0, 255, 0));
+        temp_color.setPixelColor(road_start, QColor(0, 255, 0));
 
     if (road_end.x() != -1 && road_end.y() != -1)
-      temp_color.setPixelColor(road_end, QColor(255, 0, 0));
+        temp_color.setPixelColor(road_end, QColor(255, 0, 0));
 
     return temp_color;
 }
