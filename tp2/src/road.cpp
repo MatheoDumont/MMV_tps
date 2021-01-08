@@ -153,9 +153,10 @@ bool Road::drawLine(
         i = p.first;
         j = p.second;
 
-        for (int step = -1; step < 2; ++step)
-            if (grid.inside(i + step, j + step) == true)
-                colorSquare(i + step, j + step, colors, RED);
+        for (int istep = -1; istep < 2; ++istep)
+            for (int jstep = -1; jstep < 2; ++jstep)
+                if (grid.inside(i + istep, j + jstep) == true)
+                    colorSquare(i + istep, j + jstep, colors, RED);
     }
     colorSquare(i, j, colors, BLUE);
 
