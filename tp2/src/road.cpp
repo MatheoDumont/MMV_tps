@@ -128,11 +128,17 @@ std::list<vertex_t> Road::compute(const std::pair<int, int> &source, const std::
     return DijkstraGetShortestPathTo(dst, previous);
 }
 
+#define ITER_COLOR(I, J, COLOR)                                 \
+  for (istep = -1; istep < 2; ++istep)                          \
+      for (jstep = -1; jstep < 2; ++jstep)                      \
+          if (grid.inside(I + istep, J + jstep) == true)        \
+              colorSquare(I + istep, J + jstep, colors, COLOR);
+
 bool Road::drawLine(
     std::vector<QVector3D> &colors,
     std::list<vertex_t> path) const
 {
-    int i, j;
+    int istep, jstep;
     std::pair<int, int> p;
 
     if (path.size() == 1)
@@ -142,20 +148,17 @@ bool Road::drawLine(
     path.pop_front();
 
     p = grid.inverseIndex(f);
-    colorSquare(p.first, p.second, colors, GREEN);
+
+    ITER_COLOR(p.first, p.second, GREEN);
+    //colorSquare(p.first, p.second, colors, GREEN);
 
     for (vertex_t v : path)
     {
         p = grid.inverseIndex(v);
-        i = p.first;
-        j = p.second;
-
-        for (int istep = -1; istep < 2; ++istep)
-            for (int jstep = -1; jstep < 2; ++jstep)
-                if (grid.inside(i + istep, j + jstep) == true)
-                    colorSquare(i + istep, j + jstep, colors, RED);
+        ITER_COLOR(p.first, p.second, RED);
     }
-    colorSquare(i, j, colors, BLUE);
+
+    ITER_COLOR(p.first, p.second, BLUE);
 
     return true;
 }

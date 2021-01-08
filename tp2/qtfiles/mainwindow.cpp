@@ -283,7 +283,7 @@ void MainWindow::imageClicked(int x, int y, Qt::MouseButton button)
 QImage MainWindow::updateImage(const QImage &im)
 {
     QImage temp_color = im.copy(0, 0, im.width(), im.height());
-    temp_color.convertToFormat(QImage::Format_RGB32);
+    temp_color = temp_color.convertToFormat(QImage::Format_RGB32);
 
     if (road_start.x() != -1 && road_start.y() != -1)
         temp_color.setPixelColor(road_start, QColor(0, 255, 0));
