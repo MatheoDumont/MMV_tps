@@ -30,9 +30,31 @@ endif()
 file(COPY "data" DESTINATION ${PROJECT_BINARY_DIR})
 file(COPY "shaders" DESTINATION ${PROJECT_BINARY_DIR})
 
-file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
-file(GLOB QT_SOURCES "${PROJECT_SOURCE_DIR}/qtfiles/*.cpp")
-file(GLOB UI_FILES "${PROJECT_SOURCE_DIR}/qtfiles/*.ui")
+set(SOURCES
+  "main.cpp"
+  "vec.cpp"
+  "box2d.cpp"
+  "grid.cpp"
+  "scalar_field.cpp"
+  "height_field.cpp"
+  "camera.cpp"
+  "road.cpp"
+  )
+list(TRANSFORM SOURCES PREPEND "src/")
+
+set(QT_SOURCES
+  "mainwindow.cpp"
+  "bounddialog.cpp"
+  "displayglwidget.cpp"
+  "labelimage.cpp"
+  )
+list(TRANSFORM QT_SOURCES PREPEND "qtfiles/")
+
+set(UI_FILES
+  "mainwindow.ui"
+  "bounddialog.ui"
+  )
+list(TRANSFORM UI_FILES PREPEND "qtfiles/")
 
 # https://cmake.org/cmake/help/latest/manual/cmake-qt.7.html#autouic
 # l'ordre est important :
@@ -56,6 +78,8 @@ add_definitions(${Qt5Widgets_DEFINITONS})
 target_include_directories(${PROJECT_NAME}
   PUBLIC
   "${PROJECT_SOURCE_DIR}/include"
+
+  PRIVATE
   "${PROJECT_SOURCE_DIR}/src"
   "${PROJECT_SOURCE_DIR}/qtfiles"
   "${PROJECT_BUILD_DIR}"
